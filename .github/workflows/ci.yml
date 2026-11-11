@@ -1,0 +1,233 @@
+# SPDX-FileCopyrightText: 2025-2026 Igal Alkon
+# SPDX-FileCopyrightText: 2026 ALKONTEK <git@alkontek.com>
+# SPDX-License-Identifier: BSD-3-Clause
+
+name: Bedrock CI
+
+on:
+  push:
+    branches:
+      - master
+      - 'v*.x'
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'push' || !startsWith(github.ref, 'refs/tags/v') }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.os }}-${{ matrix.arch }}${{ matrix.toolchain == 'msvc' && '-msvc' || '' }}
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: linux
+            arch: x86_64
+            run_tests: true
+            run_benchmarks: true
+            runner: ubuntu-24.04
+            shell: bash
+            msystem: ''
+            msys_packages: ''
+
+          - os: linux
+            arch: aarch64
+            run_tests: true
+            run_benchmarks: false
+            runner: ubuntu-24.04-arm
+            shell: bash
+            msystem: ''
+            msys_packages: ''
+
+          # Windows x86_64 (UCRT64 GCC)
+          - os: windows
+            arch: x86_64
+            run_tests: true
+            run_benchmarks: false
+            runner: windows-latest
+            shell: 'msys2 {0}'
+            msystem: UCRT64
+            msys_packages: mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja zip
+
+          # Windows x86_64 MSVC
+          - os: windows
+            arch: x86_64
+            run_tests: true
+            run_benchmarks: false
+            runner: windows-latest
+            shell: pwsh
+            toolchain: msvc
+            msystem: ''
+            msys_packages: ''
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up MSYS2
+        if: matrix.os == 'windows' && matrix.toolchain != 'msvc'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          update: true
+          install: ${{ matrix.msys_packages }}
+
+      - name: Install Linux packages
+        if: matrix.os == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake build-essential
+
+      - name: Configure
+        if: matrix.toolchain != 'msvc'
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBEDROCK_BUILD_TESTS=${{ matrix.run_tests }} -DBEDROCK_BUILD_EXAMPLES=ON -DBEDROCK_INSTALL=ON
+
+      - name: Configure (MSVC)
+        if: matrix.toolchain == 'msvc'
+        run: |
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          if (-not (Test-Path $vswhere)) { throw "vswhere.exe not found" }
+          $year = (& $vswhere -latest -products * -property catalog_productLineVersion | Select-Object -First 1).Trim()
+          $gen = switch ($year) {
+            { $_ -in @('17', '2022') } { 'Visual Studio 17 2022' }
+            { $_ -in @('18', '2026') } { 'Visual Studio 18 2026' }
+            default { throw "No CMake generator mapped for Visual Studio '$year'" }
+          }
+          $arch = if ('${{ matrix.arch }}' -eq 'aarch64') { 'ARM64' } else { 'x64' }
+          Write-Host "CMake generator: $gen -A $arch"
+          cmake -S . -B build -G $gen -A $arch -DBEDROCK_BUILD_TESTS=${{ matrix.run_tests }} -DBEDROCK_BUILD_EXAMPLES=ON -DBEDROCK_INSTALL=ON
+
+      - name: Build
+        if: matrix.toolchain != 'msvc'
+        run: cmake --build build --parallel
+
+      - name: Build (MSVC)
+        if: matrix.toolchain == 'msvc'
+        run: cmake --build build --config Release --parallel
+
+      - name: Run tests
+        if: matrix.run_tests && matrix.toolchain != 'msvc'
+        run: ./build/tests/bedrock_tests
+
+      - name: Run tests (MSVC)
+        if: matrix.run_tests && matrix.toolchain == 'msvc'
+        run: ./build/tests/Release/bedrock_tests.exe
+
+      - name: Run benchmarks
+        if: matrix.run_benchmarks && matrix.toolchain != 'msvc'
+        run: ./build/tests/bedrock_benchmarks
+
+      - name: Run examples
+        if: matrix.toolchain != 'msvc'
+        run: |
+          ./build/examples/args_example --help
+          ./build/examples/containers_example
+          ./build/examples/pinned_colony_example
+
+      - name: Run examples (MSVC)
+        if: matrix.toolchain == 'msvc'
+        run: |
+          ./build/examples/Release/args_example.exe --help
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./build/examples/Release/containers_example.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./build/examples/Release/pinned_colony_example.exe
+
+      # Version-line branches (v1.0.x, …) build and test only.
+      # Install trees and GitHub Releases are produced from v* tags.
+      - name: Package install tree
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          set -euo pipefail
+          TOOLCHAIN_SUFFIX=""
+          if [ "${{ matrix.toolchain }}" = "msvc" ]; then
+            TOOLCHAIN_SUFFIX="-msvc"
+          fi
+          NAME="bedrock-${GITHUB_REF_NAME}-${{ matrix.os }}-${{ matrix.arch }}${TOOLCHAIN_SUFFIX}"
+          cmake --install build --prefix "${NAME}" --config Release
+          cp LICENSE README.md "${NAME}/"
+          mkdir -p dist
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            if command -v zip >/dev/null 2>&1; then
+              zip -r "dist/${NAME}.zip" "${NAME}"
+            else
+              tar.exe -a -cf "dist/${NAME}.zip" "${NAME}"
+            fi
+          else
+            tar -czf "dist/${NAME}.tar.gz" "${NAME}"
+          fi
+          ls -la dist
+
+      - name: Upload release artifact
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v6
+        with:
+          name: bedrock-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.toolchain == 'msvc' && '-msvc' || '' }}
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+          if-no-files-found: error
+
+  # Tests the pthread paths in dynvec and dynmap. Not packaged.
+  thread-safe:
+    name: linux-x86_64-thread-safe
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Linux packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake build-essential
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBEDROCK_BUILD_TESTS=ON -DBEDROCK_BUILD_EXAMPLES=OFF -DBEDROCK_INSTALL=OFF -DBEDROCK_THREAD_SAFE=ON
+
+      - name: Build tests
+        run: cmake --build build --parallel --target bedrock_tests
+
+      - name: Run tests
+        run: ./build/tests/bedrock_tests
+
+  release:
+    name: Release ${{ github.ref_name }}
+    needs: [build, thread-safe]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Download packed libraries
+        uses: actions/download-artifact@v7
+        with:
+          path: release-files
+          merge-multiple: true
+
+      - name: List files
+        run: find release-files -type f -print
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            release-files/*.tar.gz
+            release-files/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
