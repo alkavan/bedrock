@@ -1,0 +1,10 @@
+@PACKAGE_INIT@
+
+set(BEDROCK_THREAD_SAFE @BEDROCK_THREAD_SAFE@)
+if(BEDROCK_THREAD_SAFE)
+    include(CMakeFindDependencyMacro)
+    find_dependency(Threads)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/bedrockTargets.cmake")
+check_required_components(bedrock)
