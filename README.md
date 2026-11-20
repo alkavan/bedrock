@@ -32,7 +32,7 @@ if(NOT TARGET bedrock::bedrock)
     include(FetchContent)
     FetchContent_Declare(bedrock
         GIT_REPOSITORY https://github.com/alkavan/bedrock.git
-        GIT_TAG v1.0.0
+        GIT_TAG v1.0.1
     )
     FetchContent_MakeAvailable(bedrock)
 endif()

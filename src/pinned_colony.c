@@ -16,13 +16,16 @@
  * slot after the run. Forward iteration jumps a hole with one addition.
  * Holes are also threaded through a LIFO free list so insert reuses them
  * before the high-water mark grows. Element pages stay reserved until a
- * slot in that prefix is used.
+ * slot extends the committed prefix. A commit covers that slot and a
+ * run of slots ahead of it, and later acquires inside the prefix do not
+ * call into the OS again.
  */
 
 struct PinnedColony {
     size_t capacity;
     size_t size;
     size_t high_water;
+    size_t committed;
     size_t free_head;
     size_t elem_size;
     size_t stride;
@@ -143,16 +146,26 @@ static int allocate_slot(PinnedColony *colony, size_t *out) {
     return 0;
 }
 
-static int commit_up_to(const PinnedColony *colony, const size_t index) {
+static int commit_up_to(PinnedColony *colony, const size_t index) {
     if (!colony->data || index >= colony->capacity) {
         return -1;
+    }
+
+    const size_t need = (index + 1u) * colony->stride;
+    if (need <= colony->committed) {
+        return 0;
     }
 
     size_t end = index + 64u;
     if (end > colony->capacity) {
         end = colony->capacity;
     }
-    return vmem_commit(colony->data, end * colony->stride);
+    const size_t bytes = end * colony->stride;
+    if (vmem_commit(colony->data, bytes) != 0) {
+        return -1;
+    }
+    colony->committed = bytes;
+    return 0;
 }
 
 static void destroy_at(const PinnedColony *colony, const size_t index) {

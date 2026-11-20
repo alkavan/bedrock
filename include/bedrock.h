@@ -8,7 +8,7 @@
 // Version
 #define BEDROCK_VERSION_MAJOR 1
 #define BEDROCK_VERSION_MINOR 0
-#define BEDROCK_VERSION_PATCH 0
+#define BEDROCK_VERSION_PATCH 1
 
 // Version macros
 #define BEDROCK_STR_HELPER(x) #x
