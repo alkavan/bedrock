@@ -30,7 +30,8 @@ int args_colon_count(const char *str)
     return bd_parse_colon_count(str);
 }
 
-bool args_split_host_port(const char *spec, char *host, const size_t host_size, uint16_t *port)
+bool args_split_host_port(const char *spec, char *host, const size_t host_size,
+                          uint16_t *port)
 {
     return bd_parse_host_port(spec, host, host_size, port);
 }
@@ -91,7 +92,8 @@ static ProgramArg arg_blank(void)
     return arg;
 }
 
-ProgramArg args_flag(const char *id, const char short_name, const char *long_name, const char *help)
+ProgramArg args_flag(const char *id, const char short_name, const char *long_name,
+                     const char *help)
 {
     ProgramArg arg = arg_blank();
     arg.id = id;
@@ -103,8 +105,8 @@ ProgramArg args_flag(const char *id, const char short_name, const char *long_nam
     return arg;
 }
 
-ProgramArg args_option(const char *id, const char short_name, const char *long_name, const char *help,
-                    const ArgValueKind kind)
+ProgramArg args_option(const char *id, const char short_name, const char *long_name,
+                       const char *help, const ArgValueKind kind)
 {
     ProgramArg arg = arg_blank();
     arg.id = id;
@@ -117,7 +119,7 @@ ProgramArg args_option(const char *id, const char short_name, const char *long_n
 }
 
 ProgramArg args_positional(const char *id, const char *value_name, const char *help,
-                        const ArgValueKind kind)
+                           const ArgValueKind kind)
 {
     ProgramArg arg = arg_blank();
     arg.id = id;
@@ -129,7 +131,8 @@ ProgramArg args_positional(const char *id, const char *value_name, const char *h
     return arg;
 }
 
-ProgramArg args_count(const char *id, const char short_name, const char *long_name, const char *help)
+ProgramArg args_count(const char *id, const char short_name, const char *long_name,
+                      const char *help)
 {
     ProgramArg arg = arg_blank();
     arg.id = id;
@@ -220,7 +223,8 @@ static bool user_has_short(const ProgramCmd *command, const char name)
     return false;
 }
 
-static const ProgramArg *find_long(const ProgramCmd *command, const char *name, const size_t length)
+static const ProgramArg *find_long(const ProgramCmd *command, const char *name,
+                                   const size_t length)
 {
     for (size_t i = 0; i < command->n_args; ++i) {
         const char *long_name = command->args[i].long_name;
@@ -415,7 +419,7 @@ static ArgsStatus note_presence(ArgMatch *match)
 }
 
 static ArgsStatus parse_command(const ProgramCmd *command, int argc, char **argv, int index,
-                                  CmdMatches *matches, char *err, size_t err_size);
+                                CmdMatches *matches, char *err, size_t err_size);
 
 static ArgsStatus finish_command(const CmdMatches *matches, char *err, const size_t err_size)
 {
@@ -488,18 +492,21 @@ static ArgsStatus finish_command(const CmdMatches *matches, char *err, const siz
             return BD_ARGS_MISSING;
         }
     }
+
     return BD_ARGS_OK;
 }
 
 static ArgsStatus parse_command(const ProgramCmd *command, const int argc, char **argv, int index,
-                                  CmdMatches *matches, char *err, const size_t err_size)
+                                CmdMatches *matches, char *err, const size_t err_size)
 {
     size_t i;
     size_t positional_cursor = 0;
     const ProgramArg *appending = NULL;
     bool options_done = false;
 
-    if (!command || (command->n_args > 0 && !command->args) || (command->n_subs > 0 && !command->subs)) {
+    if (!command
+        || (command->n_args > 0 && !command->args)
+        || (command->n_subs > 0 && !command->subs)) {
         set_err(err, err_size, "invalid command");
         return BD_ARGS_INVALID;
     }
@@ -717,8 +724,8 @@ static ArgsStatus parse_command(const ProgramCmd *command, const int argc, char 
     return finish_command(matches, err, err_size);
 }
 
-ArgsStatus args_command_parse(const ProgramCmd *command, const int argc, char **argv, CmdMatches *out,
-                              char *err, const size_t err_size)
+ArgsStatus args_command_parse(const ProgramCmd *command, const int argc, char **argv,
+                              CmdMatches *out, char *err, const size_t err_size)
 {
     CmdMatches local;
 
@@ -825,8 +832,10 @@ void args_command_write_help(const ProgramCmd *command, FILE *out)
     if (!command || !out) {
         return;
     }
+
     const char *name = command->name ? command->name : "program";
     fprintf(out, "Usage: %s [OPTIONS]", name);
+
     for (i = 0; i < command->n_args; ++i) {
         /* Temporary buffer for uppercased positional arg name in the usage line. */
         char holder[48];

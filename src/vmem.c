@@ -24,7 +24,8 @@
 
 #include <stdint.h>
 
-size_t vmem_page_size(void) {
+size_t vmem_page_size(void)
+{
 #ifdef _WIN32
     SYSTEM_INFO info;
     GetSystemInfo(&info);
@@ -35,7 +36,8 @@ size_t vmem_page_size(void) {
 #endif
 }
 
-size_t vmem_align_up(const size_t bytes) {
+size_t vmem_align_up(const size_t bytes)
+{
     if (bytes == 0) {
         return 0;
     }
@@ -50,7 +52,8 @@ size_t vmem_align_up(const size_t bytes) {
     return (bytes + page - 1u) & ~(page - 1u);
 }
 
-int vmem_reserve(VMemoryRegion *out, const size_t bytes) {
+int vmem_reserve(VMemoryRegion *out, const size_t bytes)
+{
     if (!out || bytes == 0) {
         return -1;
     }
@@ -77,7 +80,8 @@ int vmem_reserve(VMemoryRegion *out, const size_t bytes) {
     return 0;
 }
 
-int vmem_commit(void *p, const size_t bytes) {
+int vmem_commit(void *p, const size_t bytes)
+{
     if (bytes == 0) {
         return 0;
     }
@@ -111,7 +115,8 @@ int vmem_commit(void *p, const size_t bytes) {
     return 0;
 }
 
-void vmem_release(VMemoryRegion *region) {
+void vmem_release(VMemoryRegion *region)
+{
     if (!region) {
         return;
     }

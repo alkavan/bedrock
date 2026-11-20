@@ -39,28 +39,33 @@ struct PinnedColony {
     VMemoryRegion free_region;
 };
 
-static int is_alive(const PinnedColony *colony, const size_t index) {
+static int is_alive(const PinnedColony *colony, const size_t index)
+{
     return index < colony->high_water && colony->skipfield[index] == 0;
 }
 
-static void *ptr_at(const PinnedColony *colony, const size_t index) {
+static void *ptr_at(const PinnedColony *colony, const size_t index)
+{
     return colony->data + index * colony->stride;
 }
 
-static void rewrite_run(const PinnedColony *colony, const size_t start, const size_t len) {
+static void rewrite_run(const PinnedColony *colony, const size_t start, const size_t len)
+{
     for (size_t i = 0; i < len; ++i) {
         colony->skipfield[start + i] = len - i;
     }
 }
 
-static size_t run_start(const PinnedColony *colony, size_t index) {
+static size_t run_start(const PinnedColony *colony, size_t index)
+{
     while (index > 0 && colony->skipfield[index - 1] != 0) {
         --index;
     }
     return index;
 }
 
-static void mark_alive(const PinnedColony *colony, const size_t index) {
+static void mark_alive(const PinnedColony *colony, const size_t index)
+{
     if (colony->skipfield[index] == 0) {
         return;
     }
@@ -72,28 +77,34 @@ static void mark_alive(const PinnedColony *colony, const size_t index) {
     if (index > start) {
         rewrite_run(colony, start, index - start);
     }
+
     if (run_end > index + 1) {
         rewrite_run(colony, index + 1, run_end - (index + 1));
     }
 }
 
-static void mark_erased(const PinnedColony *colony, const size_t index) {
+static void mark_erased(const PinnedColony *colony, const size_t index)
+{
     size_t start = index;
     size_t end = index + 1;
 
     if (index > 0 && colony->skipfield[index - 1] != 0) {
         start = run_start(colony, index - 1);
     }
+
     if (end < colony->high_water && colony->skipfield[end] != 0) {
         end += colony->skipfield[end];
     }
+
     rewrite_run(colony, start, end - start);
 }
 
-static size_t next_alive(const PinnedColony *colony, const size_t start) {
+static size_t next_alive(const PinnedColony *colony, const size_t start)
+{
     if (start >= colony->high_water) {
         return SIZE_MAX;
     }
+
     if (colony->skipfield[start] == 0) {
         return start;
     }
@@ -105,10 +116,12 @@ static size_t next_alive(const PinnedColony *colony, const size_t start) {
     return jumped;
 }
 
-static size_t prev_alive(const PinnedColony *colony, size_t from) {
+static size_t prev_alive(const PinnedColony *colony, size_t from)
+{
     if (from == SIZE_MAX) {
         from = colony->high_water;
     }
+
     if (from == 0 || from > colony->high_water) {
         return SIZE_MAX;
     }
@@ -120,15 +133,18 @@ static size_t prev_alive(const PinnedColony *colony, size_t from) {
             return index;
         }
     }
+
     return SIZE_MAX;
 }
 
-static void release_slot(PinnedColony *colony, const size_t index) {
+static void release_slot(PinnedColony *colony, const size_t index)
+{
     colony->free_next[index] = colony->free_head;
     colony->free_head = index;
 }
 
-static int allocate_slot(PinnedColony *colony, size_t *out) {
+static int allocate_slot(PinnedColony *colony, size_t *out)
+{
     if (colony->free_head != SIZE_MAX) {
         const size_t index = colony->free_head;
         colony->free_head = colony->free_next[index];
@@ -136,6 +152,7 @@ static int allocate_slot(PinnedColony *colony, size_t *out) {
         *out = index;
         return 0;
     }
+
     if (colony->high_water >= colony->capacity) {
         return -1;
     }
@@ -146,7 +163,8 @@ static int allocate_slot(PinnedColony *colony, size_t *out) {
     return 0;
 }
 
-static int commit_up_to(PinnedColony *colony, const size_t index) {
+static int commit_up_to(PinnedColony *colony, const size_t index)
+{
     if (!colony->data || index >= colony->capacity) {
         return -1;
     }
@@ -160,21 +178,25 @@ static int commit_up_to(PinnedColony *colony, const size_t index) {
     if (end > colony->capacity) {
         end = colony->capacity;
     }
+
     const size_t bytes = end * colony->stride;
     if (vmem_commit(colony->data, bytes) != 0) {
         return -1;
     }
     colony->committed = bytes;
+
     return 0;
 }
 
-static void destroy_at(const PinnedColony *colony, const size_t index) {
+static void destroy_at(const PinnedColony *colony, const size_t index)
+{
     if (colony->dtor) {
         colony->dtor(ptr_at(colony, index), colony->dtor_user);
     }
 }
 
-static size_t index_of(const PinnedColony *colony, const void *element) {
+static size_t index_of(const PinnedColony *colony, const void *element)
+{
     if (!element || !colony->data || colony->stride == 0) {
         return SIZE_MAX;
     }
@@ -200,19 +222,24 @@ static size_t index_of(const PinnedColony *colony, const void *element) {
 
 PinnedColony *pinned_colony_create(const size_t capacity, const size_t elem_size,
                                     size_t elem_align, const PinnedColonyDtor dtor,
-                                    void *user) {
+                                    void *user)
+{
     if (elem_size == 0) {
         return NULL;
     }
+
     if (elem_align == 0) {
         elem_align = 1;
     }
+
     if ((elem_align & (elem_align - 1u)) != 0u) {
         return NULL;
     }
+
     if (elem_align > vmem_page_size()) {
         return NULL;
     }
+
     if (elem_size > SIZE_MAX - (elem_align - 1u)) {
         return NULL;
     }
@@ -257,14 +284,17 @@ PinnedColony *pinned_colony_create(const size_t capacity, const size_t elem_size
     colony->data = colony->data_region.base;
     colony->skipfield = colony->skip_region.base;
     colony->free_next = colony->free_region.base;
+
     for (size_t i = 0; i < capacity; ++i) {
         colony->skipfield[i] = 0;
         colony->free_next[i] = SIZE_MAX;
     }
+
     return colony;
 }
 
-void pinned_colony_destroy(PinnedColony *colony) {
+void pinned_colony_destroy(PinnedColony *colony)
+{
     if (!colony) {
         return;
     }
@@ -281,7 +311,8 @@ void pinned_colony_destroy(PinnedColony *colony) {
     free(colony);
 }
 
-void *pinned_colony_acquire(PinnedColony *colony) {
+void *pinned_colony_acquire(PinnedColony *colony)
+{
     if (!colony) {
         return NULL;
     }
@@ -301,7 +332,8 @@ void *pinned_colony_acquire(PinnedColony *colony) {
     return ptr_at(colony, index);
 }
 
-void *pinned_colony_insert(PinnedColony *colony, const void *src) {
+void *pinned_colony_insert(PinnedColony *colony, const void *src)
+{
     if (!colony || !src) {
         return NULL;
     }
@@ -314,7 +346,8 @@ void *pinned_colony_insert(PinnedColony *colony, const void *src) {
     return slot;
 }
 
-int pinned_colony_erase(PinnedColony *colony, const void *element) {
+int pinned_colony_erase(PinnedColony *colony, const void *element)
+{
     const size_t index = colony ? index_of(colony, element) : SIZE_MAX;
     if (index == SIZE_MAX) {
         return -1;
@@ -327,7 +360,8 @@ int pinned_colony_erase(PinnedColony *colony, const void *element) {
     return 0;
 }
 
-void pinned_colony_clear(PinnedColony *colony) {
+void pinned_colony_clear(PinnedColony *colony)
+{
     if (!colony) {
         return;
     }
@@ -349,49 +383,61 @@ void pinned_colony_clear(PinnedColony *colony) {
     }
 }
 
-size_t pinned_colony_size(const PinnedColony *colony) {
+size_t pinned_colony_size(const PinnedColony *colony)
+{
     return colony ? colony->size : 0;
 }
 
-size_t pinned_colony_capacity(const PinnedColony *colony) {
+size_t pinned_colony_capacity(const PinnedColony *colony)
+{
     return colony ? colony->capacity : 0;
 }
 
-int pinned_colony_empty(const PinnedColony *colony) {
+int pinned_colony_empty(const PinnedColony *colony)
+{
     return !colony || colony->size == 0;
 }
 
-void *pinned_colony_at(PinnedColony *colony, const size_t index) {
+void *pinned_colony_at(PinnedColony *colony, const size_t index)
+{
     if (!colony || !is_alive(colony, index)) {
         return NULL;
     }
     return ptr_at(colony, index);
 }
 
-size_t pinned_colony_next_index(const PinnedColony *colony, const size_t index) {
+size_t pinned_colony_next_index(const PinnedColony *colony, const size_t index)
+{
     if (!colony) {
         return SIZE_MAX;
     }
+
     if (index == SIZE_MAX) {
         return next_alive(colony, 0);
     }
+
     if (index >= colony->high_water) {
         return SIZE_MAX;
     }
+
     return next_alive(colony, index + 1);
 }
 
-size_t pinned_colony_prev_index(const PinnedColony *colony, const size_t index) {
+size_t pinned_colony_prev_index(const PinnedColony *colony, const size_t index)
+{
     if (!colony) {
         return SIZE_MAX;
     }
+
     if (index == SIZE_MAX) {
         return prev_alive(colony, SIZE_MAX);
     }
+
     return prev_alive(colony, index);
 }
 
-size_t pinned_colony_index(const PinnedColony *colony, const void *element) {
+size_t pinned_colony_index(const PinnedColony *colony, const void *element)
+{
     if (!colony) {
         return SIZE_MAX;
     }
