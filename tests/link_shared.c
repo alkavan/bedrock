@@ -4,6 +4,7 @@
 
 #include <bedrock/arena.h>
 #include <bedrock/args.h>
+#include <bedrock/fmap.h>
 #include <bedrock/parse.h>
 #include <bedrock/pinned_colony.h>
 #include <bedrock/pmr.h>
@@ -26,7 +27,7 @@ int main(void)
     colony = pinned_colony_create(1, sizeof(int), 1, NULL, NULL);
     pinned_colony_destroy(colony);
 
-    if (pmr_new_delete_resource() == NULL || vmem_page_size() == 0) {
+    if (fmap_open(NULL) != NULL || pmr_new_delete_resource() == NULL || vmem_page_size() == 0) {
         return 1;
     }
     return 0;

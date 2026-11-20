@@ -20,6 +20,7 @@ add_executable(bedrock_tests
         test_vmem.c
         test_pinned_colony.c
         test_pmr.c
+        test_fmap.c
 )
 
 target_link_libraries(bedrock_tests PRIVATE bedrock_static)

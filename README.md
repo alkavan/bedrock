@@ -6,6 +6,7 @@ A library of core utilities for building software in C.
 * Dynamic vector (`dynvec.h`)
 * Dynamic map (`dynmap.h`)
 * Virtual memory regions (`vmem.h`/`vmem.c`)
+* File mapping (`fmap.h`/`fmap.c`)
 * Arena memory allocator (`arena.h`/`arena.c`)
 * Polymorphic allocator (`pmr.h`/`pmr.c`)
 * Pinned colony container (`pinned_colony.h`/`pinned_colony.c`)

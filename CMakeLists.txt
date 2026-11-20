@@ -21,6 +21,7 @@ endif()
 set(BEDROCK_SOURCES
         src/arena.c
         src/args.c
+        src/fmap.c
         src/parse.c
         src/pinned_colony.c
         src/pmr.c
