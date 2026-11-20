@@ -5,6 +5,8 @@
 #ifndef BEDROCK_ARGS_H
 #define BEDROCK_ARGS_H
 
+#include "bedrock/config.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -24,7 +26,7 @@ typedef struct {
  * @param argc  Argument count.
  * @param argv  Argument vector; argv[0] becomes program name when present.
  */
-void args_init(ProgramArgs *it, int argc, char **argv);
+BD_API void args_init(ProgramArgs *it, int argc, char **argv);
 
 /**
  * @brief Whether all arguments have been consumed.
@@ -32,7 +34,7 @@ void args_init(ProgramArgs *it, int argc, char **argv);
  * @param it Argument walker.
  * @return true if it is NULL/invalid or index is past argc; false otherwise.
  */
-bool args_done(const ProgramArgs *it);
+BD_API bool args_done(const ProgramArgs *it);
 
 /**
  * @brief Current argument without advancing.
@@ -40,7 +42,7 @@ bool args_done(const ProgramArgs *it);
  * @param it Argument walker.
  * @return argv[index], or NULL when done.
  */
-const char *args_current(const ProgramArgs *it);
+BD_API const char *args_current(const ProgramArgs *it);
 
 /**
  * @brief Take the current argument and advance the index.
@@ -48,7 +50,7 @@ const char *args_current(const ProgramArgs *it);
  * @param it Argument walker; advanced when an argument is taken.
  * @return The taken argument, or NULL when done.
  */
-const char *args_take(ProgramArgs *it);
+BD_API const char *args_take(ProgramArgs *it);
 
 /**
  * @brief If current argv matches short or long option, consume it.
@@ -58,7 +60,7 @@ const char *args_take(ProgramArgs *it);
  * @param long_opt  Optional long form (e.g. "--help"); may be NULL.
  * @return true if matched and consumed; false otherwise.
  */
-bool args_match(ProgramArgs *it, const char *short_opt, const char *long_opt);
+BD_API bool args_match(ProgramArgs *it, const char *short_opt, const char *long_opt);
 
 /**
  * @brief True if str is non-empty and consists only of decimal digits.
@@ -66,7 +68,7 @@ bool args_match(ProgramArgs *it, const char *short_opt, const char *long_opt);
  * @param str String to test; may be NULL.
  * @return true if str is non-empty and digits-only; false otherwise.
  */
-bool args_is_digits(const char *str);
+BD_API bool args_is_digits(const char *str);
 
 /**
  * @brief Parse an unsigned 16-bit decimal value from str into out.
@@ -76,7 +78,7 @@ bool args_is_digits(const char *str);
  * @return true on success; false on NULL, empty, non-digits, overflow, or NULL
  *         out.
  */
-bool args_parse_u16(const char *str, uint16_t *out);
+BD_API bool args_parse_u16(const char *str, uint16_t *out);
 
 /**
  * @brief Count ':' characters in str.
@@ -84,7 +86,7 @@ bool args_parse_u16(const char *str, uint16_t *out);
  * @param str String to scan; may be NULL.
  * @return Number of ':' characters, or 0 if str is NULL.
  */
-int args_colon_count(const char *str);
+BD_API int args_colon_count(const char *str);
 
 /**
  * @brief Split "host" or "host:port".
@@ -99,7 +101,7 @@ int args_colon_count(const char *str);
  * @param port      Optional; set when a valid port is present.
  * @return true on success; false on invalid input or if the host does not fit.
  */
-bool args_split_host_port(const char *spec, char *host, size_t host_size, uint16_t *port);
+BD_API bool args_split_host_port(const char *spec, char *host, size_t host_size, uint16_t *port);
 
 /**
  * @brief What an argument does when it appears on the command line.
@@ -215,49 +217,49 @@ typedef struct CmdMatches {
 /**
  * @brief Flag that stores true when present.
  */
-ProgramArg args_flag(const char *id, char short_name, const char *long_name, const char *help);
+BD_API ProgramArg args_flag(const char *id, char short_name, const char *long_name, const char *help);
 
 /**
  * @brief Option that stores one value of the given kind.
  */
-ProgramArg args_option(const char *id, char short_name, const char *long_name,
+BD_API ProgramArg args_option(const char *id, char short_name, const char *long_name,
                        const char *help, ArgValueKind kind);
 
 /**
  * @brief Positional argument that stores one value.
  */
-ProgramArg args_positional(const char *id, const char *value_name,
+BD_API ProgramArg args_positional(const char *id, const char *value_name,
                              const char *help, ArgValueKind kind);
 
 /**
  * @brief Flag that counts occurrences.
  */
-ProgramArg args_count(const char *id, char short_name, const char *long_name, const char *help);
+BD_API ProgramArg args_count(const char *id, char short_name, const char *long_name, const char *help);
 
 /**
  * @brief Mark an argument required. NULL is ignored.
  */
-void args_required(ProgramArg *arg, bool required);
+BD_API void args_required(ProgramArg *arg, bool required);
 
 /**
  * @brief Set the default text used when the argument is absent.
  */
-void args_default(ProgramArg *arg, const char *value);
+BD_API void args_default(ProgramArg *arg, const char *value);
 
 /**
  * @brief Restrict the value to a NULL-terminated list. The list is not copied.
  */
-void args_possible(ProgramArg *arg, const char *const *values);
+BD_API void args_possible(ProgramArg *arg, const char *const *values);
 
 /**
  * @brief Reject a parse where both this argument and id were given.
  */
-void args_conflicts(ProgramArg *arg, const char *id);
+BD_API void args_conflicts(ProgramArg *arg, const char *id);
 
 /**
  * @brief Require id to be present whenever this argument is given.
  */
-void args_requires(ProgramArg *arg, const char *id);
+BD_API void args_requires(ProgramArg *arg, const char *id);
 
 /**
  * @brief Parse argv against a command.
@@ -266,56 +268,56 @@ void args_requires(ProgramArg *arg, const char *id);
  * match storage. On every other status, out is zeroed and nothing is owned.
  * err receives a short message when non-NULL and err_size is non-zero.
  */
-ArgsStatus args_command_parse(const ProgramCmd *command, int argc, char **argv, CmdMatches *out,
+BD_API ArgsStatus args_command_parse(const ProgramCmd *command, int argc, char **argv, CmdMatches *out,
                               char *err, size_t err_size);
 
 /**
  * @brief Write usage, arguments, options, and subcommands.
  */
-void args_command_write_help(const ProgramCmd *command, FILE *out);
+BD_API void args_command_write_help(const ProgramCmd *command, FILE *out);
 
 /**
  * @brief Release match storage. NULL is ignored.
  */
-void args_matches_free(CmdMatches *matches);
+BD_API void args_matches_free(CmdMatches *matches);
 
 /**
  * @brief True when the argument was given or a default value is available.
  */
-bool args_matches_present(const CmdMatches *matches, const char *id);
+BD_API bool args_matches_present(const CmdMatches *matches, const char *id);
 
 /**
  * @brief Occurrence count. COUNT arguments return how many times they appeared.
  */
-size_t args_matches_count(const CmdMatches *matches, const char *id);
+BD_API size_t args_matches_count(const CmdMatches *matches, const char *id);
 
 /**
  * @brief Last stored string, or NULL when this id has no string value.
  */
-const char *args_matches_get(const CmdMatches *matches, const char *id);
+BD_API const char *args_matches_get(const CmdMatches *matches, const char *id);
 
 /**
  * @brief All stored strings for an APPEND or SET argument. count may be NULL.
  */
-const char *const *args_matches_values(const CmdMatches *matches, const char *id, size_t *count);
+BD_API const char *const *args_matches_values(const CmdMatches *matches, const char *id, size_t *count);
 
-bool args_matches_get_bool(const CmdMatches *matches, const char *id, bool *out);
-bool args_matches_get_i64(const CmdMatches *matches, const char *id, int64_t *out);
-bool args_matches_get_u64(const CmdMatches *matches, const char *id, uint64_t *out);
-bool args_matches_get_i32(const CmdMatches *matches, const char *id, int32_t *out);
-bool args_matches_get_u32(const CmdMatches *matches, const char *id, uint32_t *out);
-bool args_matches_get_u16(const CmdMatches *matches, const char *id, uint16_t *out);
-bool args_matches_get_f64(const CmdMatches *matches, const char *id, double *out);
+BD_API bool args_matches_get_bool(const CmdMatches *matches, const char *id, bool *out);
+BD_API bool args_matches_get_i64(const CmdMatches *matches, const char *id, int64_t *out);
+BD_API bool args_matches_get_u64(const CmdMatches *matches, const char *id, uint64_t *out);
+BD_API bool args_matches_get_i32(const CmdMatches *matches, const char *id, int32_t *out);
+BD_API bool args_matches_get_u32(const CmdMatches *matches, const char *id, uint32_t *out);
+BD_API bool args_matches_get_u16(const CmdMatches *matches, const char *id, uint16_t *out);
+BD_API bool args_matches_get_f64(const CmdMatches *matches, const char *id, double *out);
 
 /**
  * @brief Selected subcommand, or NULL.
  */
-const ProgramCmd *args_matches_subcommand(const CmdMatches *matches);
+BD_API const ProgramCmd *args_matches_subcommand(const CmdMatches *matches);
 
 /**
  * @brief Parse of the selected subcommand, or NULL.
  */
-const CmdMatches *args_matches_child(const CmdMatches *matches);
+BD_API const CmdMatches *args_matches_child(const CmdMatches *matches);
 
 /**
  * @brief Initializer modifiers for BD_ARG_OPTION.

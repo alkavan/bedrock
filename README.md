@@ -11,9 +11,13 @@ A library of core utilities for building software in C.
 * Pinned colony container (`pinned_colony.h`/`pinned_colony.c`)
 
 ## Names
-Public functions are prefixed with their module, as in `args_init` and `pinned_colony_create`. Add a `bd_` prefix only when the plain name is likely to collide with another library, as with `bd_parse_i64`.
 
-Struct and enum names stay descriptive, as in `ProgramCmd` and `ArgAction`. Macros and other defines always start with `BD_`, as in `BD_ARG_OPTION` and `BD_ARGS_OK`.
+Public functions are prefixed with their module, as in `args_init` and `pinned_colony_create`. Add a `bd_` prefix only
+when the plain name is likely to collide with another library, as with `bd_parse_i64`.
+
+Struct and enum names stay descriptive, as in `ProgramCmd` and `ArgAction`. Macros and other defines always start with
+`BD_`, as in `BD_ARG_OPTION` and `BD_ARGS_OK`. `BD_API` marks a function defined in the library. `BD_DEPRECATED` marks
+one that will be removed, and its message names the replacement.
 
 ## Building
 ```shell
@@ -22,7 +26,8 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
 cmake --build build -j
 ```
 
-`-DBEDROCK_THREAD_SAFE=ON` locks both `dynvec` and `dynmap` with pthreads and propagates that choice to targets that link Bedrock. `DYNVEC_THREAD_SAFE` and `DYNMAP_THREAD_SAFE` still enable one container on their own.
+`-DBEDROCK_THREAD_SAFE=ON` locks both `dynvec` and `dynmap` with pthreads and propagates that choice to targets that
+link Bedrock. `DYNVEC_THREAD_SAFE` and `DYNMAP_THREAD_SAFE` still enable one container on their own.
 
 ### CMake Integration
 **Source using `FetchContent`**
@@ -32,7 +37,7 @@ if(NOT TARGET bedrock::bedrock)
     include(FetchContent)
     FetchContent_Declare(bedrock
         GIT_REPOSITORY https://github.com/alkavan/bedrock.git
-        GIT_TAG v1.0.1
+        GIT_TAG v1.0.2
     )
     FetchContent_MakeAvailable(bedrock)
 endif()

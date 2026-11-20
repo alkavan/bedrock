@@ -24,6 +24,14 @@ add_executable(bedrock_tests
 
 target_link_libraries(bedrock_tests PRIVATE bedrock_static)
 
+# One call into each compiled module. Linking bedrock_shared fails the build
+# when a Windows DLL exports none of those symbols.
+add_executable(bedrock_shared_link
+        link_shared.c
+)
+
+target_link_libraries(bedrock_shared_link PRIVATE bedrock_shared)
+
 # Benchmarks
 add_executable(bedrock_benchmarks
         bench_main.c

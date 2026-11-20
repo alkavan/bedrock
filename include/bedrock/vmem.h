@@ -5,6 +5,8 @@
 #ifndef BEDROCK_VMEM_H
 #define BEDROCK_VMEM_H
 
+#include "bedrock/config.h"
+
 #include <stddef.h>
 
 /**
@@ -22,14 +24,14 @@ typedef struct VMemoryRegion {
  * @brief System page size in bytes.
  * @return A power of two, or 4096 if the OS does not report a page size.
  */
-size_t vmem_page_size(void);
+BD_API size_t vmem_page_size(void);
 
 /**
  * @brief Round a byte count up to a multiple of the page size.
  * @param bytes Length to round. Zero stays zero.
  * @return Rounded length, or 0 if `bytes` is 0 or the rounded value would overflow.
  */
-size_t vmem_align_up(size_t bytes);
+BD_API size_t vmem_align_up(size_t bytes);
 
 /**
  * @brief Reserve inaccessible virtual address space.
@@ -41,7 +43,7 @@ size_t vmem_align_up(size_t bytes);
  * @param bytes Requested length. Rounded up to the page size.
  * @return 0 on success, or -1 if `out` is NULL, `bytes` is 0, or the OS refuses.
  */
-int vmem_reserve(VMemoryRegion *out, size_t bytes);
+BD_API int vmem_reserve(VMemoryRegion *out, size_t bytes);
 
 /**
  * @brief Make the pages covering `[p, p + bytes)` readable and writable.
@@ -53,7 +55,7 @@ int vmem_reserve(VMemoryRegion *out, size_t bytes);
  * @param bytes Number of bytes that must become accessible.
  * @return 0 on success, or -1 if `p` is NULL and `bytes` is non-zero, or the OS refuses.
  */
-int vmem_commit(void *p, size_t bytes);
+BD_API int vmem_commit(void *p, size_t bytes);
 
 /**
  * @brief Release a whole reservation and zero the struct.
@@ -62,6 +64,6 @@ int vmem_commit(void *p, size_t bytes);
  *
  * @param region Region returned by `vmem_reserve`.
  */
-void    vmem_release(VMemoryRegion *region);
+BD_API void    vmem_release(VMemoryRegion *region);
 
 #endif /* BEDROCK_VMEM_H */

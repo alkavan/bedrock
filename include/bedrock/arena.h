@@ -5,6 +5,8 @@
 #ifndef BEDROCK_ARENA_H
 #define BEDROCK_ARENA_H
 
+#include "bedrock/config.h"
+
 #include <stddef.h>
 
 typedef struct MemHeap MemHeap;
@@ -14,13 +16,13 @@ typedef struct MemHeap MemHeap;
  * @param capacity Maximum number of bytes the arena can hold.
  * @return New arena on success, or NULL if capacity is 0 or allocation fails.
  */
-MemHeap *arena_create(size_t capacity);
+BD_API MemHeap *arena_create(size_t capacity);
 
 /**
  * @brief Destroy an arena and release all of its memory.
  * @param a Arena to destroy; ignored if NULL.
  */
-void arena_destroy(MemHeap *a);
+BD_API void arena_destroy(MemHeap *a);
 
 /**
  * @brief Discard every live block and keep the arena's mapping.
@@ -31,7 +33,7 @@ void arena_destroy(MemHeap *a);
  *
  * @param a Arena to reset; ignored if NULL.
  */
-void arena_reset(MemHeap *a);
+BD_API void arena_reset(MemHeap *a);
 
 /**
  * @brief Allocate a 16-byte aligned block from the arena.
@@ -39,7 +41,7 @@ void arena_reset(MemHeap *a);
  * @param n Number of payload bytes requested.
  * @return Pointer to the payload, or NULL if the request cannot be satisfied.
  */
-void *arena_alloc(MemHeap *a, size_t n);
+BD_API void *arena_alloc(MemHeap *a, size_t n);
 
 /**
  * @brief Allocate a block aligned to at least `alignment`.
@@ -54,7 +56,7 @@ void *arena_alloc(MemHeap *a, size_t n);
  *
  * @return Pointer to the payload, or NULL if the request cannot be satisfied.
  */
-void *arena_alloc_aligned(MemHeap *a, size_t n, size_t alignment);
+BD_API void *arena_alloc_aligned(MemHeap *a, size_t n, size_t alignment);
 
 /**
  * @brief Return a previously allocated block to the arena.
@@ -65,20 +67,20 @@ void *arena_alloc_aligned(MemHeap *a, size_t n, size_t alignment);
  * @param a Arena that owns the block.
  * @param p Pointer returned by arena_alloc(); ignored if NULL.
  */
-void arena_free(MemHeap *a, void *p);
+BD_API void arena_free(MemHeap *a, void *p);
 
 /**
  * @brief Query the arena's usable capacity.
  * @param a Arena to query.
  * @return Capacity in bytes, or 0 if `a` is NULL.
  */
-size_t arena_capacity(const MemHeap *a);
+BD_API size_t arena_capacity(const MemHeap *a);
 
 /**
  * @brief Query how many bytes are currently allocated from the arena.
  * @param a Arena to query.
  * @return Bytes in use, or 0 if `a` is NULL.
  */
-size_t arena_used(const MemHeap *a);
+BD_API size_t arena_used(const MemHeap *a);
 
 #endif /* BEDROCK_ARENA_H */

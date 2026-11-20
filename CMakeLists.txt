@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(bedrock LANGUAGES C VERSION 1.0.1)
+project(bedrock LANGUAGES C VERSION 1.0.2)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -36,10 +36,17 @@ set_target_properties(bedrock_shared PROPERTIES
         VERSION ${PROJECT_VERSION}
         SOVERSION ${PROJECT_VERSION_MAJOR}
 )
+
 set_target_properties(bedrock_static PROPERTIES
         OUTPUT_NAME bedrock
         EXPORT_NAME bedrock_static  # exported as bedrock::bedrock_static
 )
+
+# MSVC uses one .lib suffix for the static archive and the DLL import
+# library. Different base names keep both in the build and install trees.
+if(MSVC)
+    set_target_properties(bedrock_static PROPERTIES OUTPUT_NAME bedrock_static)
+endif()
 
 # Namespaced aliases for in-tree / FetchContent consumers
 add_library(bedrock::bedrock ALIAS bedrock_shared)
@@ -62,6 +69,10 @@ target_include_directories(bedrock_static
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+
+# BD_API is dllexport only while the shared library is compiled. Callers and
+# the static library keep an empty macro.
+target_compile_definitions(bedrock_shared PRIVATE BEDROCK_BUILD_SHARED)
 
 # dynvec and dynmap are header-only, so the macros must reach every
 # translation unit that includes them. This does not change libbedrock.
