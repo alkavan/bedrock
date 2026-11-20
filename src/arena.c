@@ -44,7 +44,8 @@ typedef struct {
     size_t size;
 } Header;
 
-static size_t page_size(void) {
+static size_t page_size(void)
+{
 #ifdef _WIN32
     SYSTEM_INFO info;
     GetSystemInfo(&info);
@@ -55,11 +56,13 @@ static size_t page_size(void) {
 #endif
 }
 
-static size_t align_up(const size_t n, const size_t a) {
+static size_t align_up(const size_t n, const size_t a)
+{
     return (n + a - 1u) & ~(a - 1u);
 }
 
-MemHeap *arena_create(const size_t capacity) {
+MemHeap *arena_create(const size_t capacity)
+{
     if (capacity == 0) {
         return NULL;
     }
@@ -115,8 +118,10 @@ MemHeap *arena_create(const size_t capacity) {
 }
 
 static void recycle_node(MemHeap *a, FreeNode *node);
+static FreeNode *take_node(MemHeap *a);
 
-void arena_destroy(MemHeap *a) {
+void arena_destroy(MemHeap *a)
+{
     if (!a) {
         return;
     }
@@ -138,23 +143,94 @@ void arena_destroy(MemHeap *a) {
     free(a);
 }
 
-void *arena_alloc(MemHeap *a, const size_t n)
+void arena_reset(MemHeap *a)
 {
-    if (!a || n == 0) {
+    if (!a) {
+        return;
+    }
+
+    /* One node becomes the whole-arena span. The rest return to the spare
+     * or to malloc. Live payloads are not visited. */
+    FreeNode *keep = NULL;
+    FreeNode *node = a->free_list;
+    while (node) {
+        FreeNode *next = node->next;
+        if (!keep) {
+            keep = node;
+        } else {
+            recycle_node(a, node);
+        }
+        node = next;
+    }
+
+    if (!keep) {
+        keep = take_node(a);
+        if (!keep) {
+            a->free_list = NULL;
+            a->used = a->capacity;
+            return;
+        }
+    }
+
+    keep->offset = 0;
+    keep->size = a->capacity;
+    keep->next = NULL;
+    a->free_list = keep;
+    a->used = 0;
+
+    if (!a->spare) {
+        a->spare = malloc(sizeof(FreeNode));
+        if (a->spare) {
+            a->spare->next = NULL;
+        }
+    }
+}
+
+/* Payload is aligned to `alignment`. The word just before it stores the
+ * distance back to the block header so free can return the padding too. */
+static int align_up_ok(const size_t n, const size_t a, size_t *out)
+{
+    if (a == 0 || n > SIZE_MAX - (a - 1u)) {
+        return 0;
+    }
+    *out = (n + a - 1u) & ~(a - 1u);
+    return 1;
+}
+
+void *arena_alloc_aligned(MemHeap *a, const size_t n, size_t alignment)
+{
+    if (!a || n == 0 || alignment == 0 || (alignment & (alignment - 1u)) != 0u) {
         return NULL;
     }
 
-    const size_t need = align_up(n + HDR_SIZE, ALIGN);
-    if (need > a->capacity) {
+    if (alignment < ALIGN) {
+        alignment = ALIGN;
+    }
+
+    if (n > SIZE_MAX - HDR_SIZE) {
         return NULL;
     }
 
-    FreeNode *prev = NULL, *cur = a->free_list;
+    FreeNode *prev = NULL;
+    FreeNode *cur = a->free_list;
     while (cur) {
-        if (cur->size >= need) {
-            const size_t off = cur->offset;
+        size_t payload = 0;
+        size_t end = 0;
+        const int room = cur->offset <= SIZE_MAX - HDR_SIZE
+            && align_up_ok(cur->offset + HDR_SIZE, alignment, &payload)
+            && payload >= cur->offset + HDR_SIZE
+            && payload <= SIZE_MAX - n
+            && align_up_ok(payload + n, ALIGN, &end)
+            && end >= payload
+            && end - cur->offset <= cur->size
+            && payload - cur->offset >= HDR_SIZE;
 
-            if (cur->size == need) {
+        if (room) {
+            const size_t off = cur->offset;
+            const size_t span = end - off;
+            const size_t back = payload - off;
+
+            if (cur->size == span) {
                 if (prev) {
                     prev->next = cur->next;
                 } else {
@@ -162,15 +238,17 @@ void *arena_alloc(MemHeap *a, const size_t n)
                 }
                 recycle_node(a, cur);
             } else {
-                cur->offset += need;
-                cur->size -= need;
+                cur->offset += span;
+                cur->size -= span;
             }
 
             Header *h = (Header *)(a->base + off);
-            h->size = need;
-            a->used += need;
-            return (uint8_t *)h + HDR_SIZE;
+            h->size = span;
+            *(size_t *)(a->base + payload - sizeof(size_t)) = back;
+            a->used += span;
+            return a->base + payload;
         }
+
         prev = cur;
         cur = cur->next;
     }
@@ -178,8 +256,14 @@ void *arena_alloc(MemHeap *a, const size_t n)
     return NULL;
 }
 
+void *arena_alloc(MemHeap *a, const size_t n)
+{
+    return arena_alloc_aligned(a, n, ALIGN);
+}
+
 /* Keep one unused node so a later free can be recorded without malloc. */
-static void recycle_node(MemHeap *a, FreeNode *node) {
+static void recycle_node(MemHeap *a, FreeNode *node)
+{
     if (!a->spare) {
         node->next = NULL;
         a->spare = node;
@@ -188,7 +272,8 @@ static void recycle_node(MemHeap *a, FreeNode *node) {
     }
 }
 
-static FreeNode *take_node(MemHeap *a) {
+static FreeNode *take_node(MemHeap *a)
+{
     FreeNode *node = a->spare;
 
     if (node) {
@@ -206,9 +291,19 @@ void arena_free(MemHeap *a, void *p)
         return;
     }
 
-    Header *h = (Header *)((uint8_t *)p - HDR_SIZE);
+    /* The word before the payload is the distance back to the block start,
+     * including any alignment padding. */
+    const size_t back = *(size_t *)((uint8_t *)p - sizeof(size_t));
+    if (back < HDR_SIZE || back > (size_t)((uint8_t *)p - a->base)) {
+        return;
+    }
+
+    Header *h = (Header *)((uint8_t *)p - back);
     const size_t off = (uint8_t *)h - a->base;
     const size_t size = h->size;
+    if (off > a->capacity || size > a->capacity - off || size < back) {
+        return;
+    }
 
     FreeNode *prev = NULL, *cur = a->free_list;
     while (cur && cur->offset < off) {

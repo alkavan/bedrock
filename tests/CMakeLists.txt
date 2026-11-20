@@ -27,6 +27,7 @@ target_link_libraries(bedrock_tests PRIVATE bedrock_static)
 # Benchmarks
 add_executable(bedrock_benchmarks
         bench_main.c
+        bench_arena.c
         bench_pinned_colony.c
 )
 

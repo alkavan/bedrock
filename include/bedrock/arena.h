@@ -23,6 +23,17 @@ MemHeap *arena_create(size_t capacity);
 void arena_destroy(MemHeap *a);
 
 /**
+ * @brief Discard every live block and keep the arena's mapping.
+ *
+ * The cost follows the free-node list, not the number of live blocks. An arena
+ * that has only been allocated from has a single free node, so the reset is
+ * constant time. Pages already touched stay committed.
+ *
+ * @param a Arena to reset; ignored if NULL.
+ */
+void arena_reset(MemHeap *a);
+
+/**
  * @brief Allocate a 16-byte aligned block from the arena.
  * @param a Arena to allocate from.
  * @param n Number of payload bytes requested.
@@ -31,10 +42,26 @@ void arena_destroy(MemHeap *a);
 void *arena_alloc(MemHeap *a, size_t n);
 
 /**
+ * @brief Allocate a block aligned to at least `alignment`.
+ *
+ * `alignment` must be a power of two. The payload is aligned to the greater
+ * of `alignment` and 16. Padding used to reach that alignment stays inside
+ * the block and is reclaimed by `arena_free`.
+ *
+ * @param a Arena to allocate from.
+ * @param n Number of payload bytes requested.
+ * @param alignment Required alignment. Zero and non-powers of two are rejected.
+ *
+ * @return Pointer to the payload, or NULL if the request cannot be satisfied.
+ */
+void *arena_alloc_aligned(MemHeap *a, size_t n, size_t alignment);
+
+/**
  * @brief Return a previously allocated block to the arena.
  *
  * If the free list cannot record the block, it stays allocated and `arena_used`
  * is left unchanged, so the space is not lost.
+ *
  * @param a Arena that owns the block.
  * @param p Pointer returned by arena_alloc(); ignored if NULL.
  */
