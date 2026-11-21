@@ -21,7 +21,8 @@ Struct and enum names stay descriptive, as in `ProgramCmd` and `ArgAction`. Enum
 one that will be removed, and its message names the replacement.
 
 ## Building
-```shell
+
+```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
   -DBEDROCK_BUILD_TESTS=ON
 cmake --build build -j
@@ -60,3 +61,26 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug \
 cmake --build build -j
 cmake --install build
 ```
+
+## Documentation
+
+Guides, also built as pages on the docs site:
+
+* [Basic usage](doc/basic-usage.md)
+* [Online Documentation](https://docs.tekfed.org/bedrock/latest/)
+
+API pages use the [m.css Doxygen theme](https://mcss.mosra.cz/documentation/doxygen/)
+with a custom Grayscale palette (`doc/m-theme-grayscale.css`).
+`doc/conf.py` and `doc/Doxyfile-mcss` drive that pipeline. `@brief`, `@param`,
+and `@return` live on the declarations.
+
+### Generate local docs with m.css
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+python3 -m pip install jinja2 Pygments
+git clone --depth 1 https://github.com/mosra/m.css /tmp/m.css
+python3 /tmp/m.css/documentation/doxygen.py doc/conf.py
+```
+
+HTML lands in `doc/html/`. Doxygen writes XML to `doc/xml/` first; both
+directories are git-ignored.

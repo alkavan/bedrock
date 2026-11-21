@@ -1,0 +1,147 @@
+/*
+    Bedrock "Grayscale" m.css theme.
+
+    Built as a custom :root variable sheet per
+    https://mcss.mosra.cz/css/themes/#make-your-own
+
+    Palette: near-black backgrounds, near-white text,
+    subtle gray hierarchy, with minimal muted accents
+    for semantic states (success / warning / danger / info).
+*/
+
+:root {
+  /* Text properties */
+  --font: 'Source Sans Pro', sans-serif;
+  --code-font: 'Source Code Pro', monospace;
+  --font-size: 16px;
+  --code-font-size: 0.9em; /* *not* rem, so it follows surrounding font size */
+  --line-height: normal;
+  --paragraph-indent: 1.5rem;
+  --paragraph-align: justify;
+  --link-decoration: underline;
+  --link-decoration-nav: none;
+  --link-decoration-heading: none;
+  --nav-brand-case: uppercase;
+  --nav-menu-case: none;
+  --nav-heading-case: uppercase;
+  --nav-categories-case: lowercase;
+  --landing-header-case: lowercase;
+  --heading-font-weight: 600;
+
+  /* Shapes */
+  --border-radius: 0.25rem;
+
+  /* Basics — pure grayscale dark */
+  --background-color: #111111;
+  --color: #e8e8e8;
+  --line-color: #333333;
+  --link-color: #b8b8b8;
+  --link-active-color: #ffffff;
+  --mark-color: #111111;
+  --mark-background-color: #e0e0e0;
+  --code-color: #f0f0f0;
+  --code-inverted-color: rgba(240, 240, 240, 0.33);
+  --console-color: var(--code-color);
+  --console-inverted-color: var(--code-inverted-color);
+  --code-background-color: #0a0a0a;
+  --code-note-background-color: rgba(10, 10, 10, 0.55);
+  --console-background-color: #050505;
+  --button-background-color: #1a1a1a;
+
+  /* Header */
+  --header-border-width: 0 0 0.25rem 0;
+  --header-color: #f5f5f5;
+  --header-breadcrumb-color: #777777;
+  --header-background-color: #0d0d0d;
+  --header-background-color-landing: rgba(13, 13, 13, 0.85);
+  --header-background-color-jumbo: rgba(13, 13, 13, 0.3);
+  --header-link-color: #f5f5f5;
+  --header-link-active-color: #ffffff;
+  --header-link-current-color: #cccccc;
+  --header-link-active-background-color: #222222;
+  --header-link-active-background-color-semi: rgba(34, 34, 34, 0.55);
+
+  /* Footer */
+  --footer-font-size: 0.85rem;
+  --footer-color: #aaaaaa;
+  --footer-background-color: #1c1c1c;
+  --footer-link-color: #cccccc;
+  --footer-link-active-color: #ffffff;
+
+  /* Cover image */
+  --cover-image-background-color: #050505;
+
+  /* Search (used only by m-documentation.css) */
+  --search-overlay-color: var(--header-background-color-landing);
+  --search-background-color: var(--header-background-color);
+
+  /* Article */
+  --article-header-color: #f0f0f0;
+  --article-footer-color: #aaaaaa;
+  --article-heading-color: #d0d0d0;
+  --article-heading-active-color: #ffffff;
+
+  /* Right navigation panel */
+  --navpanel-link-color: #e0e0e0;
+  --navpanel-link-active-color: #ffffff;
+
+  /* Plots */
+  --plot-background-color: #2a2a2a;
+  --plot-error-color: #f5f5f5;
+
+  /* Colored components — mostly gray, light accents allowed */
+  --default-color: #e8e8e8;
+  --default-link-active-color: #ffffff;
+  --default-filled-color: #e8e8e8;
+  --default-filled-background-color: #2a2a2a;
+  --default-filled-link-color: #c0c0c0;
+  --default-filled-link-active-color: #ffffff;
+
+  /* Primary = light gray */
+  --primary-color: #d0d0d0;
+  --primary-link-active-color: #ffffff;
+  --primary-filled-color: #111111;
+  --primary-filled-background-color: #cccccc;
+  --primary-filled-link-color: #333333;
+  --primary-filled-link-active-color: #111111;
+
+  --success-color: #6bbf6b;
+  --success-link-active-color: #a8e0a8;
+  --success-filled-color: #a8e0a8;
+  --success-filled-background-color: #1e3a1e;
+  --success-filled-link-color: #6bbf6b;
+  --success-filled-link-active-color: #a8e0a8;
+
+  /* Warning */
+  --warning-color: #d4c06a;
+  --warning-link-active-color: #efe4a8;
+  --warning-filled-color: #111111;
+  --warning-filled-background-color: #5a4a1a;
+  --warning-filled-link-color: #d4c06a;
+  --warning-filled-link-active-color: #efe4a8;
+
+  /* Danger */
+  --danger-color: #d45a5a;
+  --danger-link-active-color: #f0a0a0;
+  --danger-filled-color: #f0a0a0;
+  --danger-filled-background-color: #4a1e1e;
+  --danger-filled-link-color: #d45a5a;
+  --danger-filled-link-active-color: #f0a0a0;
+
+  /* Info — cool gray-blue */
+  --info-color: #6aa4d4;
+  --info-link-active-color: #a0c8e8;
+  --info-filled-color: #c0e0f0;
+  --info-filled-background-color: #1a3040;
+  --info-filled-link-color: #6aa4d4;
+  --info-filled-link-active-color: #c0e0f0;
+
+  --dim-color: #777777;
+  --dim-link-color: #aaaaaa;
+  --dim-link-active-color: #777777;
+  --dim-filled-color: #777777;
+  --dim-filled-background-color: #1a1a1a;
+  --dim-filled-link-color: #aaaaaa;
+  --dim-filled-link-active-color: #777777;
+  --dim-button-active-color: #aaaaaa;
+}
