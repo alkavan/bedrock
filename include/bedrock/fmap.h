@@ -26,7 +26,7 @@ typedef struct FileMap FileMap;
  * @return New map, or NULL if `path` is NULL or empty, the path is not a
  *         regular file, or the file cannot be opened or sized.
  */
-BD_API FileMap *fmap_open(const char *path);
+BED_API FileMap *fmap_open(const char *path);
 
 /**
  * @brief Close a map and drop its current view.
@@ -35,7 +35,7 @@ BD_API FileMap *fmap_open(const char *path);
  *
  * @param map Map returned by `fmap_open`.
  */
-BD_API void fmap_close(FileMap *map);
+BED_API void fmap_close(FileMap *map);
 
 /**
  * @brief File length in bytes.
@@ -44,7 +44,7 @@ BD_API void fmap_close(FileMap *map);
  * @return Length, or 0 if `map` is NULL. An empty file is a successful open
  *         whose size is 0.
  */
-BD_API uint64_t fmap_size(const FileMap *map);
+BED_API uint64_t fmap_size(const FileMap *map);
 
 /**
  * @brief Map the whole file.
@@ -62,7 +62,7 @@ BD_API uint64_t fmap_size(const FileMap *map);
  * @param size Receives the view length. Unchanged on failure.
  * @return 0 on success, or -1.
  */
-BD_API int fmap_data(FileMap *map, void **out, size_t *size);
+BED_API int fmap_data(FileMap *map, void **out, size_t *size);
 
 /**
  * @brief Map or read `[offset, offset + length)`.
@@ -87,7 +87,7 @@ BD_API int fmap_data(FileMap *map, void **out, size_t *size);
  * @param actual Receives the byte count. Unchanged on failure.
  * @return 0 on success, or -1.
  */
-BD_API int fmap_window(FileMap *map, uint64_t offset, size_t length,
+BED_API int fmap_window(FileMap *map, uint64_t offset, size_t length,
                        void **out, size_t *actual);
 
 #endif /* BEDROCK_FMAP_H */

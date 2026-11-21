@@ -16,14 +16,14 @@
  *
  * @param str String to test. NULL is not digits.
  */
-BD_API bool bd_parse_digits(const char *str);
+BED_API bool bd_parse_digits(const char *str);
 
 /**
  * @brief Count ':' characters in str.
  *
  * @param str String to scan. NULL counts as zero.
  */
-BD_API int bd_parse_colon_count(const char *str);
+BED_API int bd_parse_colon_count(const char *str);
 
 /**
  * @brief Parse a signed 64-bit decimal integer.
@@ -35,27 +35,27 @@ BD_API int bd_parse_colon_count(const char *str);
  *
  * @return true on success.
  */
-BD_API bool bd_parse_i64(const char *str, int64_t *out);
+BED_API bool bd_parse_i64(const char *str, int64_t *out);
 
 /**
  * @brief Parse an unsigned 64-bit decimal integer. No sign is accepted.
  */
-BD_API bool bd_parse_u64(const char *str, uint64_t *out);
+BED_API bool bd_parse_u64(const char *str, uint64_t *out);
 
 /**
  * @brief Parse a signed 32-bit decimal integer.
  */
-BD_API bool bd_parse_i32(const char *str, int32_t *out);
+BED_API bool bd_parse_i32(const char *str, int32_t *out);
 
 /**
  * @brief Parse an unsigned 32-bit decimal integer.
  */
-BD_API bool bd_parse_u32(const char *str, uint32_t *out);
+BED_API bool bd_parse_u32(const char *str, uint32_t *out);
 
 /**
  * @brief Parse an unsigned 16-bit decimal integer.
  */
-BD_API bool bd_parse_u16(const char *str, uint16_t *out);
+BED_API bool bd_parse_u16(const char *str, uint16_t *out);
 
 /**
  * @brief Parse a floating-point value.
@@ -63,14 +63,14 @@ BD_API bool bd_parse_u16(const char *str, uint16_t *out);
  * Uses base-10 text. Rejects empty input, leading space, trailing junk,
  * non-finite values, and overflow.
  */
-BD_API bool bd_parse_f64(const char *str, double *out);
+BED_API bool bd_parse_f64(const char *str, double *out);
 
 /**
  * @brief Parse a boolean word.
  *
  * Accepts 1/0, true/false, and yes/no, ignoring case.
  */
-BD_API bool bd_parse_bool(const char *str, bool *out);
+BED_API bool bd_parse_bool(const char *str, bool *out);
 
 /**
  * @brief Split "host" or "host:port".
@@ -84,6 +84,6 @@ BD_API bool bd_parse_bool(const char *str, bool *out);
  * @param port Optional. Set only when a valid port is present.
  * @return true on success.
  */
-BD_API bool bd_parse_host_port(const char *spec, char *host, size_t host_size, uint16_t *port);
+BED_API bool bd_parse_host_port(const char *spec, char *host, size_t host_size, uint16_t *port);
 
 #endif /* BEDROCK_PARSE_H */

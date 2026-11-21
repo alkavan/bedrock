@@ -18,12 +18,12 @@
  * on other systems. There is no `dllimport`: the library exports functions,
  * and one empty macro stays valid for both library types.
  *
- * Write `BD_API` before `BD_DEPRECATED` when a declaration uses both.
+ * Write `BED_API` before `BED_DEPRECATED` when a declaration uses both.
  */
 #if defined(_WIN32) && defined(BEDROCK_BUILD_SHARED)
-#  define BD_API __declspec(dllexport)
+#  define BED_API __declspec(dllexport)
 #else
-#  define BD_API
+#  define BED_API
 #endif
 
 /**
@@ -33,11 +33,11 @@
  * compiler has no deprecation attribute.
  */
 #if defined(_MSC_VER)
-#  define BD_DEPRECATED(msg) __declspec(deprecated(msg))
+#  define BED_DEPRECATED(msg) __declspec(deprecated(msg))
 #elif defined(__GNUC__) || defined(__clang__)
-#  define BD_DEPRECATED(msg) __attribute__((deprecated(msg)))
+#  define BED_DEPRECATED(msg) __attribute__((deprecated(msg)))
 #else
-#  define BD_DEPRECATED(msg)
+#  define BED_DEPRECATED(msg)
 #endif
 
 #endif /* BEDROCK_CONFIG_H */

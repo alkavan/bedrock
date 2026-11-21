@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(bedrock LANGUAGES C VERSION 1.0.2)
+project(bedrock LANGUAGES C VERSION 1.0.3)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -71,7 +71,7 @@ target_include_directories(bedrock_static
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# BD_API is dllexport only while the shared library is compiled. Callers and
+# BED_API is dllexport only while the shared library is compiled. Callers and
 # the static library keep an empty macro.
 target_compile_definitions(bedrock_shared PRIVATE BEDROCK_BUILD_SHARED)
 

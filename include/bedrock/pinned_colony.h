@@ -38,7 +38,7 @@ typedef void (*PinnedColonyDtor)(void *element, void *user);
  * @param user Pointer passed through to `dtor`.
  * @return New colony, or NULL if the arguments are invalid or memory cannot be reserved.
  */
-BD_API PinnedColony *pinned_colony_create(size_t capacity, size_t elem_size, size_t elem_align,
+BED_API PinnedColony *pinned_colony_create(size_t capacity, size_t elem_size, size_t elem_align,
                                     PinnedColonyDtor dtor, void *user);
 
 /**
@@ -46,7 +46,7 @@ BD_API PinnedColony *pinned_colony_create(size_t capacity, size_t elem_size, siz
  *
  * @param colony Colony to destroy. NULL is ignored.
  */
-BD_API void pinned_colony_destroy(PinnedColony *colony);
+BED_API void pinned_colony_destroy(PinnedColony *colony);
 
 /**
  * @brief Take an uninitialized live slot.
@@ -54,7 +54,7 @@ BD_API void pinned_colony_destroy(PinnedColony *colony);
  * @param colony Colony to allocate from.
  * @return Pointer to the slot, or NULL if `colony` is NULL, it is full, or pages cannot be committed.
  */
-BD_API void *pinned_colony_acquire(PinnedColony *colony);
+BED_API void *pinned_colony_acquire(PinnedColony *colony);
 
 /**
  * @brief Copy `elem_size` bytes into a new live slot.
@@ -63,7 +63,7 @@ BD_API void *pinned_colony_acquire(PinnedColony *colony);
  * @param src Bytes to copy. NULL is rejected.
  * @return Pointer to the new element, or NULL on failure.
  */
-BD_API void *pinned_colony_insert(PinnedColony *colony, const void *src);
+BED_API void *pinned_colony_insert(PinnedColony *colony, const void *src);
 
 /**
  * @brief Destroy one live element and return its slot to the free list.
@@ -72,35 +72,35 @@ BD_API void *pinned_colony_insert(PinnedColony *colony, const void *src);
  * @param element Pointer previously returned by acquire, insert, or at.
  * @return 0 on success, or -1 if `element` is not a live element of `colony`.
  */
-BD_API int pinned_colony_erase(PinnedColony *colony, const void *element);
+BED_API int pinned_colony_erase(PinnedColony *colony, const void *element);
 
 /**
  * @brief Destroy every live element and make those slots reusable.
  *
  * @param colony Colony to clear. NULL is ignored.
  */
-BD_API void pinned_colony_clear(PinnedColony *colony);
+BED_API void pinned_colony_clear(PinnedColony *colony);
 
 /**
  * @brief Live element count.
  *
  * @return Number of live elements, or 0 if `colony` is NULL.
  */
-BD_API size_t pinned_colony_size(const PinnedColony *colony);
+BED_API size_t pinned_colony_size(const PinnedColony *colony);
 
 /**
  * @brief Maximum slot capacity.
  *
  * @return Slot capacity, or 0 if `colony` is NULL.
  */
-BD_API size_t pinned_colony_capacity(const PinnedColony *colony);
+BED_API size_t pinned_colony_capacity(const PinnedColony *colony);
 
 /**
  * @brief Whether the colony has no live elements.
  *
  * @return Non-zero when there are no live elements. A NULL colony is empty.
  */
-BD_API int pinned_colony_empty(const PinnedColony *colony);
+BED_API int pinned_colony_empty(const PinnedColony *colony);
 
 /**
  * @brief Pointer to a live element.
@@ -109,27 +109,27 @@ BD_API int pinned_colony_empty(const PinnedColony *colony);
  * @param index Slot index.
  * @return Element pointer, or NULL if the index is not live.
  */
-BD_API void *pinned_colony_at(PinnedColony *colony, size_t index);
+BED_API void *pinned_colony_at(PinnedColony *colony, size_t index);
 
 /**
  * @brief Next live index after `index`, in increasing order.
  *
  * Pass `SIZE_MAX` to get the first live index. The end of the walk is `SIZE_MAX`.
  */
-BD_API size_t pinned_colony_next_index(const PinnedColony *colony, size_t index);
+BED_API size_t pinned_colony_next_index(const PinnedColony *colony, size_t index);
 
 /**
  * @brief Previous live index before `index`.
  *
  * Pass `SIZE_MAX` to get the last live index. The beginning of the walk is `SIZE_MAX`.
  */
-BD_API size_t pinned_colony_prev_index(const PinnedColony *colony, size_t index);
+BED_API size_t pinned_colony_prev_index(const PinnedColony *colony, size_t index);
 
 /**
  * @brief Slot index of a live element pointer.
  *
  * @return Index, or `SIZE_MAX` if `element` is not an aligned live element of `colony`.
  */
-BD_API size_t pinned_colony_index(const PinnedColony *colony, const void *element);
+BED_API size_t pinned_colony_index(const PinnedColony *colony, const void *element);
 
 #endif /* BEDROCK_PINNED_COLONY_H */
