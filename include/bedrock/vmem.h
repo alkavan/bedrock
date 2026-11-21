@@ -2,6 +2,11 @@
 // SPDX-FileCopyrightText: 2026 ALKONTEK <git@alkontek.com>
 // SPDX-License-Identifier: BSD-3-Clause
 
+/**
+ * @file
+ * @brief Page-aligned virtual memory reserve and commit.
+ */
+
 #ifndef BEDROCK_VMEM_H
 #define BEDROCK_VMEM_H
 
@@ -41,6 +46,7 @@ BED_API size_t vmem_align_up(size_t bytes);
  *
  * @param out Receives the reservation. Unchanged on failure.
  * @param bytes Requested length. Rounded up to the page size.
+ *
  * @return 0 on success, or -1 if `out` is NULL, `bytes` is 0, or the OS refuses.
  */
 BED_API int vmem_reserve(VMemoryRegion *out, size_t bytes);
@@ -53,7 +59,9 @@ BED_API int vmem_reserve(VMemoryRegion *out, size_t bytes);
  *
  * @param p Address inside a region from `vmem_reserve`.
  * @param bytes Number of bytes that must become accessible.
- * @return 0 on success, or -1 if `p` is NULL and `bytes` is non-zero, or the OS refuses.
+ *
+ * @return 0 on success, or -1 if `p` is NULL and `bytes` is non-zero, or the OS
+ *         refuses.
  */
 BED_API int vmem_commit(void *p, size_t bytes);
 
@@ -64,6 +72,6 @@ BED_API int vmem_commit(void *p, size_t bytes);
  *
  * @param region Region returned by `vmem_reserve`.
  */
-BED_API void    vmem_release(VMemoryRegion *region);
+BED_API void vmem_release(VMemoryRegion *region);
 
 #endif /* BEDROCK_VMEM_H */

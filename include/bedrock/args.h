@@ -2,6 +2,11 @@
 // SPDX-FileCopyrightText: 2026 ALKONTEK <git@alkontek.com>
 // SPDX-License-Identifier: BSD-3-Clause
 
+/**
+ * @file
+ * @brief Command-line walking and declarative argument parsing.
+ */
+
 #ifndef BEDROCK_ARGS_H
 #define BEDROCK_ARGS_H
 
@@ -12,6 +17,11 @@
 #include <stdint.h>
 #include <stdio.h>
 
+/**
+ * @brief Cursor over argc and argv.
+ *
+ * `index` starts at 1. `program` is argv[0], or `"program"` when argc is 0.
+ */
 typedef struct {
     int argc;             /**< Argument count. */
     char **argv;          /**< Argument vector. */

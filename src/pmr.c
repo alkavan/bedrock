@@ -2,6 +2,11 @@
 // SPDX-FileCopyrightText: 2026 ALKONTEK <git@alkontek.com>
 // SPDX-License-Identifier: BSD-3-Clause
 
+/**
+ * @file
+ * @brief Polymorphic allocator implementation.
+ */
+
 #include "bedrock/pmr.h"
 
 #include <stdlib.h>

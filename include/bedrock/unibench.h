@@ -28,12 +28,16 @@
 #include <mach/mach_time.h>
 #endif
 
-// Forward declaration of the benchmark node structure
+/**
+ * @brief One registered benchmark.
+ *
+ * `BENCHMARK` links these before `main`. `run_benchmarks` walks the list.
+ */
 struct benchmark_node {
-    const char* name;   // display name
-    const char* tags;   // filterable tags
-    void (*func)(void);
-    struct benchmark_node* next;
+    const char* name;            /**< Display name. */
+    const char* tags;            /**< Filterable tags. */
+    void (*func)(void);          /**< Function to time. */
+    struct benchmark_node* next; /**< Next registered benchmark. */
 };
 
 // Global head of the benchmark list

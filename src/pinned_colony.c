@@ -2,6 +2,11 @@
 // SPDX-FileCopyrightText: 2026 ALKONTEK <git@alkontek.com>
 // SPDX-License-Identifier: BSD-3-Clause
 
+/**
+ * @file
+ * @brief Pinned colony implementation.
+ */
+
 #include "bedrock/pinned_colony.h"
 #include "bedrock/vmem.h"
 

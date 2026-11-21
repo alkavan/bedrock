@@ -8,6 +8,11 @@
 #  define _DEFAULT_SOURCE
 #endif
 
+/**
+ * @file
+ * @brief File mapping implementation.
+ */
+
 #include "bedrock/fmap.h"
 #include "bedrock/vmem.h"
 

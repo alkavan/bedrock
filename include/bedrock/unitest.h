@@ -24,12 +24,16 @@
 #endif
 #define PRINT_TEST_FAIL(name, tags) printf("FAIL: %s %s\n", tags, name)
 
-// Forward declaration of the test node structure
+/**
+ * @brief One registered test.
+ *
+ * `TEST_CASE` links these before `main`. `run_tests` walks the list.
+ */
 struct test_node {
-    const char* name;
-    const char* tags;
-    void (*func)(void);
-    struct test_node* next;
+    const char* name;       /**< Display name. */
+    const char* tags;       /**< Filterable tags. */
+    void (*func)(void);     /**< Function to run. */
+    struct test_node* next; /**< Next registered test. */
 };
 
 // Global head of the test list (declaration)
