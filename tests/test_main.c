@@ -13,7 +13,7 @@ const double EPSILON64 = UNITEST_EPS_64;
 jmp_buf _except_buf;
 
 // Test node
-struct test_node* test_head = NULL;
+struct TestNode* test_head = NULL;
 
 int main(int argc, char *argv[])
 {

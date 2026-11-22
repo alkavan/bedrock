@@ -14,7 +14,7 @@ const double EPSILON64 = UNITEST_EPS_64;
 jmp_buf _except_buf;
 
 // Benchmark node
-struct benchmark_node* benchmark_head = NULL;
+struct BenchmarkNode* benchmark_head = NULL;
 
 int main(const int argc, char *argv[])
 {

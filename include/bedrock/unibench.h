@@ -33,15 +33,15 @@
  *
  * `BENCHMARK` links these before `main`. `run_benchmarks` walks the list.
  */
-struct benchmark_node {
+struct BenchmarkNode {
     const char* name;            /**< Display name. */
     const char* tags;            /**< Filterable tags. */
     void (*func)(void);          /**< Function to time. */
-    struct benchmark_node* next; /**< Next registered benchmark. */
+    struct BenchmarkNode* next; /**< Next registered benchmark. */
 };
 
 // Global head of the benchmark list
-extern struct benchmark_node* benchmark_head;
+extern struct BenchmarkNode* benchmark_head;
 
 /**
  * @brief Register a benchmark and open its function body.
@@ -54,7 +54,7 @@ extern struct benchmark_node* benchmark_head;
  */
 #define BENCHMARK(name, tags)                                                                  \
     static void bench_func_##name(void);                                                       \
-    static struct benchmark_node bench_node_##name = { #name, tags, bench_func_##name, NULL }; \
+    static struct BenchmarkNode bench_node_##name = { #name, tags, bench_func_##name, NULL };  \
     INITIALIZER(register_bench_##name) {                                                       \
         bench_node_##name.next = benchmark_head;                                               \
         benchmark_head = &bench_node_##name;                                                   \
@@ -69,17 +69,17 @@ static inline double run_benchmarks(void) {
     double total_time = 0.0;
 
     // Reverse the benchmark list to run in registration order (first registered)
-    struct benchmark_node* prev = NULL;
-    struct benchmark_node* current = benchmark_head;
+    struct BenchmarkNode* prev = NULL;
+    struct BenchmarkNode* current = benchmark_head;
     while (current != NULL) {
-        struct benchmark_node* next = current->next;
+        struct BenchmarkNode* next = current->next;
         current->next = prev;
         prev = current;
         current = next;
     }
     benchmark_head = prev;
 
-    const struct benchmark_node* current_run = benchmark_head;
+    const struct BenchmarkNode* current_run = benchmark_head;
 
     // Traverse the list in corrected order
     while (current_run != NULL) {

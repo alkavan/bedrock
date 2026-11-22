@@ -29,15 +29,15 @@
  *
  * `TEST_CASE` links these before `main`. `run_tests` walks the list.
  */
-struct test_node {
+struct TestNode {
     const char* name;       /**< Display name. */
     const char* tags;       /**< Filterable tags. */
     void (*func)(void);     /**< Function to run. */
-    struct test_node* next; /**< Next registered test. */
+    struct TestNode* next; /**< Next registered test. */
 };
 
 // Global head of the test list (declaration)
-extern struct test_node* test_head;
+extern struct TestNode* test_head;
 
 /**
  * @brief Register a test and open its function body.
@@ -50,7 +50,7 @@ extern struct test_node* test_head;
  */
 #define TEST_CASE(name, tags)                                                           \
     static void test_func_##name(void);                                                 \
-    static struct test_node test_node_##name = { #name, tags, test_func_##name, NULL }; \
+    static struct TestNode test_node_##name = { #name, tags, test_func_##name, NULL };  \
     INITIALIZER(register_##name) {                                                      \
         test_node_##name.next = test_head;                                              \
         test_head = &test_node_##name;                                                  \
@@ -64,7 +64,7 @@ extern struct test_node* test_head;
 static int run_tests(void) {
     int passed = 0;
     int total = 0;
-    const struct test_node* current = test_head;
+    const struct TestNode* current = test_head;
 
     // Traverse the list (order may be reversed due to registration, but often doesn't matter)
     while (current != NULL) {
