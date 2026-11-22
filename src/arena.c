@@ -19,18 +19,29 @@
 #  endif
 #endif
 
+/**
+ * @file
+ * @brief Arena allocator implementation.
+ */
+
 #include <stdlib.h>
 #include <stdint.h>
 
 #define ALIGN 16u
 #define HDR_SIZE ALIGN
 
+/** @brief Free-list node inside an arena. Not part of the public API. */
 typedef struct FreeNode {
-    size_t offset;
-    size_t size;
-    struct FreeNode *next;
+    size_t offset;           /**< Start of the free span, in bytes from the base. */
+    size_t size;             /**< Length of the free span, in bytes. */
+    struct FreeNode *next;   /**< Next free span, or NULL. */
 } FreeNode;
 
+/**
+ * @brief Fixed-capacity arena.
+ *
+ * Callers use `arena_create` and do not read these fields.
+ */
 struct MemHeap {
     uint8_t  *base;
     size_t mapped;
@@ -40,8 +51,9 @@ struct MemHeap {
     FreeNode *spare;     /**< reused so a free can be recorded if malloc fails */
 };
 
+/** @brief Byte size stored immediately before an arena block. Not part of the public API. */
 typedef struct {
-    size_t size;
+    size_t size; /**< Payload size recorded for `arena_free`. */
 } Header;
 
 static size_t page_size(void)

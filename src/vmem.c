@@ -7,6 +7,11 @@
 #  define _DEFAULT_SOURCE
 #endif
 
+/**
+ * @file
+ * @brief Virtual memory implementation.
+ */
+
 #include "bedrock/vmem.h"
 
 #ifdef _WIN32

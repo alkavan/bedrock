@@ -43,7 +43,7 @@ extern const double EPSILON64;
     __pragma(comment(linker,"/include:" p #f "_")) \
     static void f(void)
 #else
-#define INITIALIZER(f) \
+#define INITIALIZER(f)                                \
     static void f(void) __attribute__((constructor)); \
     static void f(void)
 #endif
@@ -52,16 +52,29 @@ extern const double EPSILON64;
  * Assertion Macros
  ******************************************************************************/
 
-#define REQUIRE(cond) do { \
-    if (!(cond)) { \
+/**
+ * @brief Fail the current test when `cond` is false.
+ *
+ * Prints the condition and source location, then `THROW`.
+ *
+ * @param cond Expression to test.
+ */
+#define REQUIRE(cond) do {                                                  \
+    if (!(cond)) {                                                          \
         printf("REQUIRE failed: %s at %s:%d\n", #cond, __FILE__, __LINE__); \
-        THROW; \
-    } \
+        THROW;                                                              \
+    }                                                                       \
 } while (0)
 
-#define FAIL(fmt, ...) do { \
+/**
+ * @brief Fail the current test with a printf message, then `THROW`.
+ *
+ * @param fmt printf format string.
+ * @param ... Arguments for `fmt`.
+ */
+#define FAIL(fmt, ...) do {                                                \
     printf("FAIL: " fmt " at %s:%d\n", ##__VA_ARGS__, __FILE__, __LINE__); \
-    THROW; \
+    THROW;                                                                 \
 } while (0)
 
 #endif /* BEDROCK_UNITEST_COMMON_H */

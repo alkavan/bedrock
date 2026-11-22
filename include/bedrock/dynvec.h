@@ -2,6 +2,11 @@
 // SPDX-FileCopyrightText: 2026 ALKONTEK <git@alkontek.com>
 // SPDX-License-Identifier: BSD-3-Clause
 
+/**
+ * @file
+ * @brief Growable vector of element pointers.
+ */
+
 #ifndef BEDROCK_DYNVEC_H
 #define BEDROCK_DYNVEC_H
 
@@ -29,13 +34,19 @@
 #define DYNVEC_INITIAL_CAPACITY 8
 #endif
 
-/** @brief Callback that destroys a single vector element. */
+/**
+ * @brief Callback that destroys a single vector element.
+ */
 typedef void (*DynVecDestructor)(void *element);
 
-/** @brief Callback that deep-copies a single vector element. */
+/**
+ * @brief Callback that deep-copies a single vector element.
+ */
 typedef void* (*DynVecCopy)(void *element);
 
-/** @brief Callback invoked once per element (e.g. by FOR_EACH). */
+/**
+ * @brief Callback invoked once per element (e.g. by FOR_EACH).
+ */
 typedef void* (*DynVecForEach)(void *element);
 
 /**
@@ -57,9 +68,7 @@ typedef struct DynVec {
 
 /**
  * @brief Creates a vector with default initial capacity.
- *
  * @param dtor  Optional element destructor, or NULL.
- *
  * @return New vector, or NULL on allocation failure.
  */
 static inline DynVec *dynvec_new(const DynVecDestructor dtor) {
@@ -122,9 +131,7 @@ static inline void dynvec_set_destructor(DynVec *vec, const DynVecDestructor dto
 
 /**
  * @brief Returns the element destructor.
- *
  * @param vec  Vector to query.
- *
  * @return Destructor pointer, or NULL if unset/invalid.
  */
 static inline DynVecDestructor dynvec_destructor(const DynVec *vec) {
@@ -133,9 +140,7 @@ static inline DynVecDestructor dynvec_destructor(const DynVec *vec) {
 
 /**
  * @brief Returns the number of elements.
- *
  * @param vec  Vector to query (NULL-safe).
- *
  * @return Length, or 0 if @p vec is NULL.
  */
 static inline size_t dynvec_length(const DynVec *vec) {
@@ -144,9 +149,7 @@ static inline size_t dynvec_length(const DynVec *vec) {
 
 /**
  * @brief Returns the allocated capacity.
- *
  * @param vec  Vector to query (NULL-safe).
- *
  * @return Capacity, or 0 if @p vec is NULL.
  */
 static inline size_t dynvec_capacity(const DynVec *vec) {
@@ -155,9 +158,7 @@ static inline size_t dynvec_capacity(const DynVec *vec) {
 
 /**
  * @brief Returns whether the vector has no elements.
- *
  * @param vec  Vector to query.
- *
  * @return Non-zero if empty or @p vec is NULL.
  */
 static inline int dynvec_empty(const DynVec *vec) {
@@ -191,7 +192,6 @@ static inline void dynvec_reserve(DynVec *vec, const size_t n) {
 
 /**
  * @brief Doubles capacity when the vector is full.
- *
  * @param vec  Vector to grow.
  */
 static void dynvec_grow(DynVec *vec) {
@@ -281,7 +281,6 @@ static inline void dynvec_insert(DynVec *vec, const size_t pos, void *elem) {
 
 /**
  * @brief Removes the last element, calling its destructor if set.
- *
  * @param vec  Vector to modify.
  */
 static inline void dynvec_pop(DynVec *vec) {
@@ -344,7 +343,6 @@ static inline void dynvec_copy(DynVec *to, const DynVec *from) {
 
 /**
  * @brief Destroys all elements and frees the vector.
- *
  * @param vec  Vector to free (NULL-safe).
  */
 static inline void dynvec_free(DynVec *vec) {
@@ -443,9 +441,7 @@ static inline size_t dynvec_index_of(const DynVec *vec, const void *elem) {
 
 /**
  * @brief Returns a pointer to the first element slot.
- *
  * @param vec  Vector to query.
- *
  * @return &elements[0], or NULL if empty/invalid.
  */
 static inline void **dynvec_begin(const DynVec *vec) {
@@ -454,9 +450,7 @@ static inline void **dynvec_begin(const DynVec *vec) {
 
 /**
  * @brief Returns a pointer one past the last element.
- *
  * @param vec  Vector to query.
- *
  * @return &elements[length], or NULL if @p vec is NULL.
  */
 static inline void **dynvec_end(const DynVec *vec) {
@@ -477,9 +471,7 @@ static inline void dynvec_set_copy_func(DynVec *vec, const DynVecCopy copy_func)
 
 /**
  * @brief Returns the element deep-copy function.
- *
  * @param vec  Vector to query.
- *
  * @return Copy function, or NULL if unset/invalid.
  */
 static inline DynVecCopy dynvec_copy_func(const DynVec *vec) {

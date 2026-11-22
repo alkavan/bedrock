@@ -2,6 +2,11 @@
 // SPDX-FileCopyrightText: 2026 ALKONTEK <git@alkontek.com>
 // SPDX-License-Identifier: BSD-3-Clause
 
+/**
+ * @file
+ * @brief Hash map, plus typed helpers for string and int keys.
+ */
+
 #ifndef BEDROCK_DYNMAP_H
 #define BEDROCK_DYNMAP_H
 
@@ -325,7 +330,7 @@ static void dynmap_destroy(DynMap* map) {
 }
 
 /* These helpers are optional. A translation unit may use one key type, both,
-   or neither. */
+ * or neither. */
 #if defined(__GNUC__) || defined(__clang__)
 #define BD_DYNMAP_UNUSED __attribute__((unused))
 #else

@@ -2,6 +2,11 @@
 // SPDX-FileCopyrightText: 2026 ALKONTEK <git@alkontek.com>
 // SPDX-License-Identifier: BSD-3-Clause
 
+/**
+ * @file
+ * @brief Fixed-capacity arena that can free individual blocks.
+ */
+
 #ifndef BEDROCK_ARENA_H
 #define BEDROCK_ARENA_H
 
@@ -9,6 +14,12 @@
 
 #include <stddef.h>
 
+/**
+ * @struct MemHeap
+ * @brief Fixed-capacity arena.
+ *
+ * Create one with `arena_create`. The layout is private.
+ */
 typedef struct MemHeap MemHeap;
 
 /**
@@ -37,8 +48,10 @@ BED_API void arena_reset(MemHeap *a);
 
 /**
  * @brief Allocate a 16-byte aligned block from the arena.
+ *
  * @param a Arena to allocate from.
  * @param n Number of payload bytes requested.
+ *
  * @return Pointer to the payload, or NULL if the request cannot be satisfied.
  */
 BED_API void *arena_alloc(MemHeap *a, size_t n);

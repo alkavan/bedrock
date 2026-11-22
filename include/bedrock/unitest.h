@@ -24,25 +24,37 @@
 #endif
 #define PRINT_TEST_FAIL(name, tags) printf("FAIL: %s %s\n", tags, name)
 
-// Forward declaration of the test node structure
+/**
+ * @brief One registered test.
+ *
+ * `TEST_CASE` links these before `main`. `run_tests` walks the list.
+ */
 struct test_node {
-    const char* name;
-    const char* tags;
-    void (*func)(void);
-    struct test_node* next;
+    const char* name;       /**< Display name. */
+    const char* tags;       /**< Filterable tags. */
+    void (*func)(void);     /**< Function to run. */
+    struct test_node* next; /**< Next registered test. */
 };
 
 // Global head of the test list (declaration)
 extern struct test_node* test_head;
 
-// Test Case
-#define TEST_CASE(name, tags) \
-    static void test_func_##name(void); \
+/**
+ * @brief Register a test and open its function body.
+ *
+ * The next brace block is the test. `name` is pasted into the function, so it
+ * must be an identifier.
+ *
+ * @param name Identifier used as the display name.
+ * @param tags String literal of filter tags, for example `"[arena]"`.
+ */
+#define TEST_CASE(name, tags)                                                           \
+    static void test_func_##name(void);                                                 \
     static struct test_node test_node_##name = { #name, tags, test_func_##name, NULL }; \
-    INITIALIZER(register_##name) { \
-        test_node_##name.next = test_head; \
-        test_head = &test_node_##name; \
-    } \
+    INITIALIZER(register_##name) {                                                      \
+        test_node_##name.next = test_head;                                              \
+        test_head = &test_node_##name;                                                  \
+    }                                                                                   \
     static void test_func_##name(void)
 
 /**

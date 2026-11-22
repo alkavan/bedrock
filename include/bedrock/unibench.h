@@ -28,24 +28,37 @@
 #include <mach/mach_time.h>
 #endif
 
-// Forward declaration of the benchmark node structure
+/**
+ * @brief One registered benchmark.
+ *
+ * `BENCHMARK` links these before `main`. `run_benchmarks` walks the list.
+ */
 struct benchmark_node {
-    const char* name;   // display name
-    const char* tags;   // filterable tags
-    void (*func)(void);
-    struct benchmark_node* next;
+    const char* name;            /**< Display name. */
+    const char* tags;            /**< Filterable tags. */
+    void (*func)(void);          /**< Function to time. */
+    struct benchmark_node* next; /**< Next registered benchmark. */
 };
 
 // Global head of the benchmark list
 extern struct benchmark_node* benchmark_head;
 
-#define BENCHMARK(name, tags) \
-    static void bench_func_##name(void); \
+/**
+ * @brief Register a benchmark and open its function body.
+ *
+ * The next brace block is the benchmark. `name` is pasted into the function,
+ * so it must be an identifier.
+ *
+ * @param name Identifier used as the display name.
+ * @param tags String literal of filter tags.
+ */
+#define BENCHMARK(name, tags)                                                                  \
+    static void bench_func_##name(void);                                                       \
     static struct benchmark_node bench_node_##name = { #name, tags, bench_func_##name, NULL }; \
-    INITIALIZER(register_bench_##name) { \
-        bench_node_##name.next = benchmark_head; \
-        benchmark_head = &bench_node_##name; \
-    } \
+    INITIALIZER(register_bench_##name) {                                                       \
+        bench_node_##name.next = benchmark_head;                                               \
+        benchmark_head = &bench_node_##name;                                                   \
+    }                                                                                          \
     static void bench_func_##name(void)
 
 /**
