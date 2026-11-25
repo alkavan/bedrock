@@ -38,3 +38,19 @@ add_executable(game_example
 )
 
 target_link_libraries(game_example PRIVATE bedrock_static)
+
+add_executable(result_example
+        result_example.c
+)
+
+target_link_libraries(result_example PRIVATE bedrock_static)
+
+# result.h is C11. Keep extensions off for this example.
+set_target_properties(result_example PROPERTIES
+        C_STANDARD 11
+        C_STANDARD_REQUIRED ON
+        C_EXTENSIONS OFF
+)
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
+    target_compile_options(result_example PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()

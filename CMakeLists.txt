@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(bedrock LANGUAGES C VERSION 1.0.3)
+project(bedrock LANGUAGES C VERSION 1.0.4)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -25,6 +25,7 @@ set(BEDROCK_SOURCES
         src/parse.c
         src/pinned_colony.c
         src/pmr.c
+        src/result.c
         src/vmem.c
 )
 

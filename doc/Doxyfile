@@ -15,8 +15,8 @@
 
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "Bedrock"
-PROJECT_NUMBER         = 1.0.3
-PROJECT_BRIEF          = "Bedrock 1.0.3"
+PROJECT_NUMBER         = 1.0.4
+PROJECT_BRIEF          = "Bedrock 1.0.4"
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = .
 CREATE_SUBDIRS         = NO

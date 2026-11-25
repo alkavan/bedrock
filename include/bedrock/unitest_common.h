@@ -6,17 +6,38 @@
  * @file
  * @brief Assertions, tolerances, token pasting, and startup registration.
  *
- * `REQUIRE` and `FAIL` print a failure and throw. `INITIALIZER` runs a
- * function before `main`. `CONCAT` pastes two tokens. `UNITEST_EPS_32`,
- * `UNITEST_EPS_64`, `EPSILON`, and `EPSILON64` are the comparison tolerances.
+ * `REQUIRE` and `FAIL` print a failure and leave the current test.
+ * `INITIALIZER` runs a function before `main`. `CONCAT` pastes two tokens.
+ * `UNITEST_EPS_32`, `UNITEST_EPS_64`, `EPSILON`, and `EPSILON64` are the
+ * comparison tolerances.
  */
 
 #ifndef BEDROCK_UNITEST_COMMON_H
 #define BEDROCK_UNITEST_COMMON_H
 
+#include <setjmp.h>
 #include <stdio.h>
 
-#include "except.h"
+/**
+ * @brief Jump buffer a failed test check uses to leave the test.
+ *
+ * The test program defines this once, in global scope. One buffer, one
+ * active check.
+ */
+extern jmp_buf _except_buf;
+
+/** @brief Open the test runner's check region. */
+#define TRY do { \
+    if (setjmp(_except_buf) == 0) {
+
+/** @brief Run when a check in the matching TRY fails. */
+#define CATCH } else {
+
+/** @brief Close a TRY and CATCH pair. */
+#define END_TRY } } while (0)
+
+/** @brief Leave the current test check. */
+#define THROW longjmp(_except_buf, 1)
 
 // Epsilon
 #define UNITEST_EPS_32 1e-6f
@@ -55,7 +76,7 @@ extern const double EPSILON64;
 /**
  * @brief Fail the current test when `cond` is false.
  *
- * Prints the condition and source location, then `THROW`.
+ * Prints the condition and source location, then leaves the test.
  *
  * @param cond Expression to test.
  */
@@ -67,7 +88,7 @@ extern const double EPSILON64;
 } while (0)
 
 /**
- * @brief Fail the current test with a printf message, then `THROW`.
+ * @brief Fail the current test with a printf message and leave the test.
  *
  * @param fmt printf format string.
  * @param ... Arguments for `fmt`.

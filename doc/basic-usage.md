@@ -171,6 +171,48 @@ pinned_colony_erase(colony, slot);
 pinned_colony_destroy(colony);
 ```
 
+## Results
+
+`result.h` returns a value and a `ResultError` in one object. `BD_DEFINE_RESULT` names the result type. `BD_RESULT_TRY` stores the value, or returns the error from the current function. The expression and the function use the same result type. `examples/result_example.c` adds two digits this way.
+
+```c
+#include <bedrock/result.h>
+
+#include <stddef.h>
+
+BD_DEFINE_RESULT(Parsed, int)
+
+static Parsed parse_digit(const char *text)
+{
+    if (text == NULL || text[0] < '0' || text[0] > '9' || text[1] != '\0') {
+        return BD_RESULT_ERR(Parsed, BD_RESULT_ERROR(1, "parse", "expected one digit"));
+    }
+
+    return BD_RESULT_OK(Parsed, text[0] - '0');
+}
+
+static Parsed add_digits(const char *left, const char *right)
+{
+    int a = 0;
+    int b = 0;
+
+    BD_RESULT_TRY(Parsed, a, parse_digit(left));
+    BD_RESULT_TRY(Parsed, b, parse_digit(right));
+    return BD_RESULT_OK(Parsed, a + b);
+}
+
+int main(void)
+{
+    Parsed sum = add_digits("2", "3");
+
+    if (!sum.ok) {
+        return 1;
+    }
+
+    return sum.value == 5 ? 0 : 1;
+}
+```
+
 ## Tests and benchmarks
 
-`unitest.h` registers `TEST_CASE` functions and `REQUIRE` checks. `unibench.h` does the same for `BENCHMARK`. Both use the `TRY` / `THROW` macros in `except.h`.
+`unitest.h` registers `TEST_CASE` functions and `REQUIRE` checks. `unibench.h` does the same for `BENCHMARK`. A failed `REQUIRE` leaves that test.

@@ -10,6 +10,7 @@ A library of core utilities for building software in C.
 * Arena memory allocator (`arena.h`/`arena.c`)
 * Polymorphic allocator (`pmr.h`/`pmr.c`)
 * Pinned colony container (`pinned_colony.h`/`pinned_colony.c`)
+* Value results (`result.h`/`result.c`)
 
 ## Names
 
@@ -39,7 +40,7 @@ if(NOT TARGET bedrock::bedrock)
     include(FetchContent)
     FetchContent_Declare(bedrock
         GIT_REPOSITORY https://github.com/alkavan/bedrock.git
-        GIT_TAG v1.0.3
+        GIT_TAG v1.0.4
     )
     FetchContent_MakeAvailable(bedrock)
 endif()

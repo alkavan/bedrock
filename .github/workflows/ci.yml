@@ -137,6 +137,7 @@ jobs:
           ./build/examples/pinned_colony_example
           ./build/examples/pmr_example
           ./build/examples/game_example
+          ./build/examples/result_example
 
       - name: Run examples (MSVC)
         if: matrix.toolchain == 'msvc'
@@ -150,6 +151,8 @@ jobs:
           ./build/examples/Release/pmr_example.exe
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           ./build/examples/Release/game_example.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./build/examples/Release/result_example.exe
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       # Version-line branches (v1.0.x, …) build and test only.

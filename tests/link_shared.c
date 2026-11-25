@@ -8,7 +8,10 @@
 #include <bedrock/parse.h>
 #include <bedrock/pinned_colony.h>
 #include <bedrock/pmr.h>
+#include <bedrock/result.h>
 #include <bedrock/vmem.h>
+
+static volatile int force_result_abort = 0;
 
 int main(void)
 {
@@ -29,6 +32,16 @@ int main(void)
 
     if (fmap_open(NULL) != NULL || pmr_new_delete_resource() == NULL || vmem_page_size() == 0) {
         return 1;
+    }
+
+    {
+        const ResultError linked = result_error(1, "link", "check", "link_shared.c", 1);
+        if (linked.code != 1 || linked.line != 1) {
+            return 1;
+        }
+        if (force_result_abort) {
+            result_abort(&linked, "link", "link_shared.c", 1);
+        }
     }
     return 0;
 }
